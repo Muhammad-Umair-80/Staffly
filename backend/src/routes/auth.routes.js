@@ -11,10 +11,12 @@ const router = express.Router();
 
 const authController = require('../controllers/auth.controller');
 
+// Log types to help diagnose 'argument handler must be a function' errors during startup
+console.log('[auth.routes] typeof authController.loginAdmin =', typeof authController.loginAdmin);
 router.post('/admin', authController.loginAdmin);
 
 
-router.get('/get-me', authMiddleware.authMiddleware, authController.getMe);
+router.get('/get-me', authMiddleware.authMiddleware, authController.getCurrentAdmin);
 
 
 /**
@@ -25,9 +27,10 @@ router.get('/get-me', authMiddleware.authMiddleware, authController.getMe);
 
 const employeeController = require('../controllers/employee.controller');
 
+// Log types for the middleware and handler used here
+console.log('[auth.routes] typeof authMiddleware.authMiddleware =', typeof authMiddleware.authMiddleware);
+console.log('[auth.routes] typeof employeeController.saveEmployee =', typeof employeeController.saveEmployee);
 router.post('/employees', authMiddleware.authMiddleware, employeeController.saveEmployee);
-
-
 
 
 

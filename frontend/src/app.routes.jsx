@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Login from './pages/login.jsx';
+import dashboard from './pages/dashboard.jsx';
 import AdminProtected from './components/Admin.protected.jsx';
 
 const AppRoutes = () => (
@@ -11,19 +12,11 @@ const AppRoutes = () => (
         path="/"
         element={
           <AdminProtected>
-            <div className="dashboard-screen">
-              <div className="dashboard-shell">
-                <h1>Welcome to the Admin Dashboard</h1>
-                <p>
-                  You are successfully logged in. Use this area to manage your
-                  admin settings and staff details.
-                </p>
-              </div>
-            </div>
+            <dashboard />
           </AdminProtected>
         }
       />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      
     </Routes>
   </BrowserRouter>
 );
