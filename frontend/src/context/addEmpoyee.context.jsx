@@ -1,6 +1,5 @@
-import { createContext, useEffect, useMemo, useState } from 'react';
-
-import {addEmployee as addEmployeeApi} from '../services/employee.api.jsx';
+import { createContext, useMemo, useState } from 'react';
+import { addEmployee as addEmployeeApi } from '../services/addEmployee.api.jsx';
 
 export const addEmployeeContext = createContext(null);
 
@@ -8,9 +7,10 @@ export function AddEmployeeProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-    const handleAddEmployee = async (employeeData) => {
+  const handleAddEmployee = async (employeeData) => {
     setLoading(true);
     setError(null);
+
     try {
       const result = await addEmployeeApi(employeeData);
       return result;
@@ -20,5 +20,9 @@ export function AddEmployeeProvider({ children }) {
     } finally {
       setLoading(false);
     }
-    };
-    
+  };
+
+  const value = useMemo(() => ({ loading, error, setError, handleAddEmployee }), [loading, error]);
+
+  return <addEmployeeContext.Provider value={value}>{children}</addEmployeeContext.Provider>;
+}

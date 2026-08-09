@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-// const bcrypt = require('bcrypt');
 const Admin = require('../models/Admin.model');
 
 async function loginAdmin(req, res) {
@@ -29,6 +28,7 @@ async function loginAdmin(req, res) {
 
     res.status(200).json({
       message: 'Login successful',
+      token,
       user: { id: admin._id, email: admin.email },
     });
   } catch (error) {

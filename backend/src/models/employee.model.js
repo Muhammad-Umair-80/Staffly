@@ -4,37 +4,47 @@ const EmployeeSchema = new mongoose.Schema(
   {
     employeeId: {
       type: String,
+      required: true,
       trim: true,
+      unique: true,
     },
     profileImage: {
-      type: String,
-      default: '',
-      trim: true,
+      type: {
+        url: { type: String, trim: true },
+        fileId: { type: String, trim: true },
+      },
+      default: null,
     },
     fullName: {
       type: String,
+      required: true,
       trim: true,
     },
     email: {
       type: String,
+      required: true,
       trim: true,
       lowercase: true,
+      unique: true,
     },
-    phoneNumber: {
+    phone: {
       type: String,
+      required: true,
       trim: true,
     },
     role: {
       type: String,
+      required: true,
       trim: true,
-      default: 'Employee',
     },
     department: {
       type: String,
+      required: true,
       trim: true,
     },
     city: {
       type: String,
+      required: true,
       trim: true,
     },
     address: {
@@ -43,8 +53,9 @@ const EmployeeSchema = new mongoose.Schema(
     },
     joiningDate: {
       type: Date,
+      required: true,
     },
-    employeeStatus: {
+    employmentStatus: {
       type: String,
       enum: ['active', 'on-leave', 'archived'],
       default: 'active',
@@ -57,7 +68,6 @@ const EmployeeSchema = new mongoose.Schema(
     },
     currentProject: {
       type: String,
-      default: '',
       trim: true,
     },
   },
@@ -65,9 +75,6 @@ const EmployeeSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-EmployeeSchema.index({ employeeId: 1 }, { unique: true, sparse: true });
-EmployeeSchema.index({ email: 1 }, { unique: true, sparse: true });
 
 const Employee = mongoose.model('Employee', EmployeeSchema);
 
