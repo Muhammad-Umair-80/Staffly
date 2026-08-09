@@ -1,31 +1,22 @@
-const jwt = require('jsonwebtoken');
-const Admin = require('../models/Admin.model');
+const jwt = require("jsonwebtoken");
 
-async function authenticateAdmin(req, res, next) {
-  try {
-    const token = req.cookies?.token || req.header('Authorization')?.replace('Bearer ', '');
+async function authMiddleware(req, res, next) {
+    const token = req.cookies.token;
 
     if (!token) {
-      return res.status(401).json({ message: 'Authentication token missing' });
+        return res.status(401).json({ message: 'No token provided' });
     }
 
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: 'Server configuration error' });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    }
+    catch (error) {
+        console.error('Error verifying token:', error);
+        return res.status(401).json({ message: 'Invalid token' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const admin = await Admin.findById(decoded.id).select('-password');
-
-    if (!admin) {
-      return res.status(401).json({ message: 'Invalid authentication token' });
-    }
-
-    req.admin = admin;
-    next();
-  } catch (error) {
-    console.error('Authentication error:', error);
-    res.status(401).json({ message: 'Authentication failed' });
-  }
 }
 
-module.exports = { authenticateAdmin };
+module.exports = {authMiddleware};

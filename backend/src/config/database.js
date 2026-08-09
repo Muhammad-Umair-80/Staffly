@@ -53,15 +53,29 @@ function resolveMongoUri() {
 }
 
 async function connectDB() {
-try {
-  const mongoUri = resolveMongoUri();
+  try {
+    const mongoUri = resolveMongoUri();
 
-  await mongoose.connect(mongoUri)
-  console.log('Connected to MongoDB');
-} catch (error) {
-  console.error('Error connecting to MongoDB:', error);
-  throw error;
-}
+    await mongoose.connect(mongoUri);
+    console.log('Connected to MongoDB');
+
+    const db = mongoose.connection.db;
+    const collection = db.collection('employees');
+
+    for (const indexName of ['employeeId_1', 'email_1']) {
+      try {
+        await collection.dropIndex(indexName);
+        console.log(`Dropped old index ${indexName}`);
+      } catch (err) {
+        if (err.codeName !== 'IndexNotFound') {
+          console.warn(`Could not drop index ${indexName}:`, err.message);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    throw error;
+  }
 }
 
 module.exports = connectDB;

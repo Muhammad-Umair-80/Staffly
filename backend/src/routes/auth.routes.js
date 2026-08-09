@@ -1,23 +1,40 @@
 const express = require('express');
-const { loginAdmin, getCurrentAdmin } = require('../controllers/auth.controller');
-const { authenticateAdmin } = require('../middleware/auth.middleware');
+const authMiddleware = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
 /**
  * @route POST /api/auth/admin
- * @desc Login an admin user
+ * @desc Create a new admin
  * @access Public
  */
-router.post('/admin', loginAdmin);
+
+const authController = require('../controllers/auth.controller');
+
+router.post('/admin', authController.loginAdmin);
+
+
+router.get('/get-me', authMiddleware.authMiddleware, authController.getMe);
+
 
 /**
- * @route GET /api/auth/me
- * @route GET /api/auth/get-me
- * @desc Return the current authenticated admin
- * @access Private
+ * @route POST /api/auth/employees
+ * description: Create a new employee
+ * @access Private (Admin only)
  */
-router.get('/me', authenticateAdmin, getCurrentAdmin);
-router.get('/get-me', authenticateAdmin, getCurrentAdmin);
+
+const employeeController = require('../controllers/employee.controller');
+
+router.post('/employees', authMiddleware.authMiddleware, employeeController.saveEmployee);
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;
