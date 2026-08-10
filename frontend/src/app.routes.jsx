@@ -6,6 +6,11 @@ import AddEmployee from './pages/addEmployee.jsx';
 import Employees from './pages/employees.jsx';
 import EditEmployee from './pages/EditEmployee.jsx';
 import EmployeeProfile from './pages/employeeProfile.jsx';
+import Archive from './pages/Archive.jsx';
+import Projects from './pages/Projects.jsx';
+import AddProject from './pages/AddProject.jsx';
+import ProjectProfile from './pages/ProjectProfile.jsx';
+import EditProject from './pages/EditProject.jsx';
 import AdminProtected from './components/Admin.protected.jsx';
 
 const AppRoutes = () => (
@@ -49,6 +54,46 @@ const AppRoutes = () => (
         element={
           <AdminProtected>
             <EditEmployee />
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/archived-employees"
+        element={
+          <AdminProtected>
+            <Archive/>
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/projects"
+        element={
+          <AdminProtected>
+            <Projects />
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/projects/add"
+        element={
+          <AdminProtected>
+            <AddProject />
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/projects/:id/edit"
+        element={
+          <AdminProtected>
+            <EditProject />
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/projects/:id"
+        element={
+          <AdminProtected>
+            <ProjectProfile />
           </AdminProtected>
         }
       />

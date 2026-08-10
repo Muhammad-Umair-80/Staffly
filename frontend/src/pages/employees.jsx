@@ -66,6 +66,10 @@ const Employees = () => {
     const query = search.trim().toLowerCase();
 
     return employees.filter((employee) => {
+      if (employee.employmentStatus === 'archived') {
+        return false;
+      }
+
       const matchesStatus = statusFilter === 'all' || normalizeStatus(employee.employmentStatus) === statusFilter;
       const searchableText = [
         employee.fullName,

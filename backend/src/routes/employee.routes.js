@@ -6,6 +6,7 @@ const {
   getEmployees,
   getEmployeeById,
   updateEmployee,
+  archiveEmployee,
   deleteEmployee,
 } = require('../controllers/employee.controller');
 
@@ -24,6 +25,7 @@ const uploadFields = upload.fields([
 
 router.post('/', authMiddleware, uploadFields, createEmployee);
 router.get('/', authMiddleware, getEmployees);
+router.patch('/:id/archive', authMiddleware, archiveEmployee);
 router.get('/:id', authMiddleware, getEmployeeById);
 router.put('/:id', authMiddleware, uploadFields, updateEmployee);
 router.delete('/:id', authMiddleware, deleteEmployee);

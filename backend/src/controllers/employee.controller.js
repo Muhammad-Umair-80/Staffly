@@ -13,6 +13,8 @@ const allowedFields = [
   'address',
   'joiningDate',
   'employmentStatus',
+  'leavingDate',
+  'leavingReason',
   'reportingTo',
   'currentProject',
 ];
@@ -152,7 +154,16 @@ async function createEmployee(req, res) {
 
 async function getEmployees(req, res) {
   try {
-    const employees = await Employee.find({ employmentStatus: { $ne: 'archived' } })
+    const { status } = req.query;
+    let query = { employmentStatus: { $ne: 'archived' } };
+
+    if (status === 'archived') {
+      query = { employmentStatus: 'archived' };
+    } else if (status === 'active') {
+      query = { employmentStatus: { $in: ['active', 'on-leave'] } };
+    }
+
+    const employees = await Employee.find(query)
       .sort({ createdAt: -1 })
       .lean();
 
@@ -263,6 +274,47 @@ async function updateEmployee(req, res) {
   }
 }
 
+async function archiveEmployee(req, res) {
+  try {
+    const { id } = req.params;
+    const { leavingDate, leavingReason } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid employee ID.' });
+    }
+
+    if (!leavingDate) {
+      return res.status(400).json({ success: false, message: 'Leaving date is required.' });
+    }
+
+    const parsedLeavingDate = new Date(leavingDate);
+    if (Number.isNaN(parsedLeavingDate.getTime())) {
+      return res.status(400).json({ success: false, message: 'Leaving date must be a valid date.' });
+    }
+
+    if (!leavingReason || !String(leavingReason).trim()) {
+      return res.status(400).json({ success: false, message: 'Leaving reason is required.' });
+    }
+
+    const employee = await Employee.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'Employee not found.' });
+    }
+
+    employee.employmentStatus = 'archived';
+    employee.leavingDate = parsedLeavingDate;
+    employee.leavingReason = String(leavingReason).trim();
+
+    await employee.save();
+
+    return res.status(200).json({ success: true, message: 'Employee archived successfully', employee });
+  } catch (error) {
+    console.error('Error archiving employee:', error);
+    return res.status(500).json({ success: false, message: 'Unable to archive employee.' });
+  }
+}
+
 async function deleteEmployee(req, res) {
   try {
     const { id } = req.params;
@@ -293,6 +345,7 @@ module.exports = {
   getEmployees,
   getEmployeeById,
   updateEmployee,
+  archiveEmployee,
   deleteEmployee,
   saveEmployee,
 };

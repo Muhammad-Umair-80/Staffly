@@ -23,8 +23,13 @@ app.use(
  */
 const authRoutes = require('./routes/auth.routes');
 const employeeRoutes = require('./routes/employee.routes');
+const feedbackRoutes = require('./routes/feedback.routes');
+const projectRoutes = require('./routes/project.routes');
 
 app.use('/api/auth', authRoutes);
 app.use(['/employee', '/employees', '/api/employee', '/api/employees'], employeeRoutes);
+// Mount feedback routes at /api so routes defined as /employees/:employeeId/feedback and /feedback/:feedbackId work
+app.use('/api', feedbackRoutes);
+app.use('/api', projectRoutes);
 
 module.exports = app;
