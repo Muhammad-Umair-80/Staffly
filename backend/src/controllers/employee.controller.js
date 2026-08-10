@@ -192,9 +192,22 @@ async function updateEmployee(req, res) {
       return res.status(400).json({ success: false, message: 'Invalid employee ID.' });
     }
 
+    const file =
+      req.file ||
+      (req.files && ((req.files.image && req.files.image[0]) || (req.files.profileImage && req.files.profileImage[0])));
+
     const payload = toEmployeePayload(req.body, null);
-    if (Object.keys(payload).length === 0) {
+    if (Object.keys(payload).length === 0 && !file) {
       return res.status(400).json({ success: false, message: 'No employee updates were provided.' });
+    }
+
+    if (file) {
+      if (!process.env.IMAGEKIT_PUBLIC_KEY || !process.env.IMAGEKIT_PRIVATE_KEY) {
+        return res.status(500).json({ success: false, message: 'ImageKit configuration is missing.' });
+      }
+
+      const uploadResult = await uploadImage(file.buffer, file.originalname);
+      payload.profileImage = buildImagePayload(uploadResult);
     }
 
     const validationErrors = validateEmployeePayload({ ...payload, employmentStatus: payload.employmentStatus || 'active' });

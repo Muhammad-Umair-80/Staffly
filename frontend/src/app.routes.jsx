@@ -4,7 +4,8 @@ import Login from './pages/login.jsx';
 import Dashboard from './pages/dashboard.jsx';
 import AddEmployee from './pages/addEmployee.jsx';
 import Employees from './pages/employees.jsx';
-import EmployeeProfile, { EmployeeEditPlaceholder } from './pages/employeeProfile.jsx';
+import EditEmployee from './pages/EditEmployee.jsx';
+import EmployeeProfile from './pages/employeeProfile.jsx';
 import AdminProtected from './components/Admin.protected.jsx';
 
 const AppRoutes = () => (
@@ -47,7 +48,7 @@ const AppRoutes = () => (
         path="/employees/:id/edit"
         element={
           <AdminProtected>
-            <EmployeeEditPlaceholder />
+            <EditEmployee />
           </AdminProtected>
         }
       />

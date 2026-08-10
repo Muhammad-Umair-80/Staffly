@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/employeeProfile.scss';
+import '../styles/ArchivedEmployee.scss';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 
@@ -39,7 +40,7 @@ export const EmployeeEditPlaceholder = () => {
     <div className="dashboard-shell">
       <div className="dashboard-card employee-profile-card">
         <div className="content-state">
-          <h2>Edit employee</h2>
+          
           <p>Editing for employee {id} will be available soon.</p>
           <Link to="/employees" className="primary-button" style={{ textDecoration: 'none', display: 'inline-flex' }}>
             Back to Employees
@@ -202,7 +203,9 @@ const EmployeeProfile = () => {
                   </div>
                 </div>
               </div>
-
+                 <Link to={`/archived-employees/${employee._id}/edit`} className="archive-button" style={{ textDecoration: 'none', display: 'inline-flex' ,color: '#fdfdfd', backgroundColor: '#f44336', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer'}}>
+                Archive Employee
+              </Link>
               <Link to={`/employees/${employee._id}/edit`} className="primary-button" style={{ textDecoration: 'none', display: 'inline-flex' }}>
                 Edit Employee
               </Link>

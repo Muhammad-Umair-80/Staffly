@@ -59,6 +59,13 @@ const EmployeeSchema = new mongoose.Schema(
       type: String,
       enum: ['active', 'on-leave', 'archived'],
       default: 'active',
+      leavingDate: {
+        type: Date,
+      },
+    leavingReason: {
+      type: String,
+      trim: true,   
+      },
       lowercase: true,
       trim: true,
     },
