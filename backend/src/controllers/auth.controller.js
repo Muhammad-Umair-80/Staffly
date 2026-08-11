@@ -1,15 +1,22 @@
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin.model');
-
+const bcrypt = require('bcryptjs');
 async function loginAdmin(req, res) {
   try {
     const { email, password } = req.body;
+
 
     const admin = await Admin.findOne({ email, password });
 
     if (!admin) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+
+    // const isMatch = await bcrypt.compare(password, admin.password);
+
+    // if (!isMatch) {
+    //   return res.status(400).json({ message: 'Invalid credentials' });
+    // }
 
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET is not set');

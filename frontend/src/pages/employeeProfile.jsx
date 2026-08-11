@@ -8,7 +8,10 @@ import '../styles/employees.scss';
 import '../styles/projects.scss';
 import FeedbackList from '../components/feedback/FeedbackList';
 import AddFeedbackModal from '../components/feedback/AddFeedbackModal';
+import DocumentList from '../components/documents/DocumentList';
+import UploadDocumentModal from '../components/documents/UploadDocumentModal';
 
+import ProjectProfile  from '../pages/ProjectProfile.jsx';
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 
 const formatDate = (value) => {
@@ -77,6 +80,14 @@ const EmployeeProfile = () => {
   const openAddFeedback = () => setShowAddFeedback(true);
   const closeAddFeedback = () => setShowAddFeedback(false);
   const onFeedbackAdded = () => setRefreshFeedbackKey((k) => k + 1);
+
+  // Documents UI
+  const [showUploadDocument, setShowUploadDocument] = useState(false);
+  const [refreshDocumentsKey, setRefreshDocumentsKey] = useState(0);
+  const openUploadDocument = () => setShowUploadDocument(true);
+  const closeUploadDocument = () => setShowUploadDocument(false);
+  const onDocumentUploaded = () => setRefreshDocumentsKey((k) => k + 1);
+
 
 
   const loadEmployee = async () => {
@@ -383,9 +394,9 @@ const EmployeeProfile = () => {
                     <p>No projects assigned.</p>
                   </div>
                 ) : (
-                  <div className="project-grid">
+                  <div  className="project-grid">
                     {employeeProjects.map((project) => (
-                      <div key={project._id} className="project-card">
+                      <div key={project._id} onClick={() => navigate(`/projects/${project._id}`)} className="project-card" style={{ cursor: 'pointer' , backgroundColor: '#f9f9f9', border: '1px solid #ddd', borderRadius: '8px', padding: '16px', transition: 'box-shadow 0.3s ease' }}>
                         <div className="project-card__header">
                           <div>
                             <h2>{project.name}</h2>
@@ -425,6 +436,30 @@ const EmployeeProfile = () => {
             {showAddFeedback && employee ? (
               <AddFeedbackModal employeeId={employee._id} onClose={closeAddFeedback} onAdded={() => {
                 onFeedbackAdded();
+              }} />
+            ) : null}
+
+            {/* Documents Section */}
+            <div className="profile-grid">
+              <section className="profile-section">
+                <div className="profile-section__heading">
+                  <h2>Documents</h2>
+                  <div style={{ marginLeft: 'auto' }}>
+                    <button type="button" className="primary-button" onClick={openUploadDocument}>
+                      + Upload Document
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 12 }}>
+                  <DocumentList key={refreshDocumentsKey} employeeId={employee._id} />
+                </div>
+              </section>
+            </div>
+
+            {showUploadDocument && employee ? (
+              <UploadDocumentModal employeeId={employee._id} onClose={closeUploadDocument} onUploaded={() => {
+                onDocumentUploaded();
               }} />
             ) : null}
           </>
