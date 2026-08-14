@@ -26,6 +26,7 @@ const employeeRoutes = require('./routes/employee.routes');
 const feedbackRoutes = require('./routes/feedback.routes');
 const projectRoutes = require('./routes/project.routes');
 const documentRoutes = require('./routes/document.routes');
+const adminManagementRoutes = require('./routes/adminManagement.routes');
 
 app.use('/api/auth', authRoutes);
 app.use(['/employee', '/employees', '/api/employee', '/api/employees'], employeeRoutes);
@@ -33,5 +34,7 @@ app.use(['/employee', '/employees', '/api/employee', '/api/employees'], employee
 app.use('/api', feedbackRoutes);
 app.use('/api', projectRoutes);
 app.use('/api', documentRoutes);
+// Admin management routes
+app.use('/api', adminManagementRoutes);
 
 module.exports = app;

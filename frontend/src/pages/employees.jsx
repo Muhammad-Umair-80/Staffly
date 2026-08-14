@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/dashboard.scss';
@@ -34,6 +34,9 @@ const Employees = () => {
   const [employees, setEmployees] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [projectFilter, setProjectFilter] = useState('all');
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -58,19 +61,49 @@ const Employees = () => {
     }
   };
 
+  const loadProjects = async () => {
+    try {
+      const token = window.localStorage.getItem('peoplehub-auth-token');
+      const resp = await axios.get(`${API_BASE}/api/projects`, {
+        withCredentials: true,
+        headers: { Authorization: token ? `Bearer ${token}` : undefined },
+      });
+      setProjects(resp.data?.projects || []);
+    } catch (err) {
+      setProjects([]);
+    }
+  };
+
   useEffect(() => {
     loadEmployees();
+    loadProjects();
   }, []);
+
+  const availableRoles = useMemo(() => {
+    const set = new Set();
+    employees.forEach((e) => e.role && set.add(e.role));
+    return Array.from(set).sort();
+  }, [employees]);
 
   const visibleEmployees = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     return employees.filter((employee) => {
-      if (employee.employmentStatus === 'archived') {
-        return false;
+      // Handle archived filter: if archived selected show only archived, otherwise hide archived by default
+      if (statusFilter === 'archived') {
+        if (employee.employmentStatus !== 'archived') return false;
+      } else {
+        if (employee.employmentStatus === 'archived') return false;
       }
 
-      const matchesStatus = statusFilter === 'all' || normalizeStatus(employee.employmentStatus) === statusFilter;
+      const empStatusNormalized = normalizeStatus(employee.employmentStatus);
+      const matchesStatus = statusFilter === 'all' || empStatusNormalized === statusFilter;
+
+      const matchesRole = roleFilter === 'all' || (employee.role && employee.role === roleFilter);
+
+      const projectNameForEmp = employee.currentProject || '';
+      const matchesProject = projectFilter === 'all' || (projectFilter && projectFilter === projectNameForEmp);
+
       const searchableText = [
         employee.fullName,
         employee.employeeId,
@@ -82,12 +115,29 @@ const Employees = () => {
         .toLowerCase();
 
       const matchesQuery = !query || searchableText.includes(query);
-      return matchesStatus && matchesQuery;
+
+      return matchesStatus && matchesRole && matchesProject && matchesQuery;
     });
-  }, [employees, search, statusFilter]);
+  }, [employees, search, statusFilter, roleFilter, projectFilter]);
 
   const showEmptyState = !loading && !error && employees.length === 0;
   const showFilteredEmptyState = !loading && !error && employees.length > 0 && visibleEmployees.length === 0;
+
+  const anyFilterActive = () => {
+    return (
+      search.trim() !== '' ||
+      statusFilter !== 'all' ||
+      roleFilter !== 'all' ||
+      projectFilter !== 'all'
+    );
+  };
+
+  const clearFilters = () => {
+    setSearch('');
+    setStatusFilter('all');
+    setRoleFilter('all');
+    setProjectFilter('all');
+  };
 
   return (
     <div className="dashboard-shell">
@@ -120,8 +170,39 @@ const Employees = () => {
               <option value="all">All</option>
               <option value="active">Active</option>
               <option value="on leave">On Leave</option>
+              <option value="archived">Archived</option>
             </select>
           </label>
+
+          <label className="employees-select">
+            <span className="visually-hidden">Filter by role</span>
+            <select value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}>
+              <option value="all">All Roles</option>
+              {availableRoles.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="employees-select">
+            <span className="visually-hidden">Filter by project</span>
+            <select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)}>
+              <option value="all">All Projects</option>
+              {projects.map((p) => (
+                <option key={p._id} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {anyFilterActive() ? (
+            <button type="button" className="secondary-button" onClick={clearFilters}>
+              Clear Filters
+            </button>
+          ) : null}
         </div>
 
         {loading ? (
@@ -155,6 +236,9 @@ const Employees = () => {
           <div className="content-state">
             <h2>No employees found</h2>
             <p>Try a different search or filter.</p>
+            <button type="button" className="secondary-button" onClick={clearFilters}>
+              Clear Filters
+            </button>
           </div>
         ) : null}
 

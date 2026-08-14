@@ -1,22 +1,33 @@
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin.model');
 const bcrypt = require('bcryptjs');
+
 async function loginAdmin(req, res) {
   try {
     const { email, password } = req.body;
 
-
-    const admin = await Admin.findOne({ email, password });
-
-    if (!admin) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    if (!email || !password) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // const isMatch = await bcrypt.compare(password, admin.password);
+    const normalizedEmail = String(email).trim().toLowerCase();
 
-    // if (!isMatch) {
-    //   return res.status(400).json({ message: 'Invalid credentials' });
-    // }
+    const admin = await Admin.findOne({ email: normalizedEmail });
+
+    if (!admin) {
+      // Do not reveal whether email or password is incorrect
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    if (admin.status === 'disabled') {
+      return res.status(403).json({ message: 'Your admin account has been disabled' });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET is not set');
@@ -33,10 +44,11 @@ async function loginAdmin(req, res) {
       sameSite: 'Strict',
     });
 
+    // Return token in body as frontend expects it while cookie is the main auth mechanism
     res.status(200).json({
       message: 'Login successful',
       token,
-      user: { id: admin._id, email: admin.email },
+      user: { id: admin._id, email: admin.email, name: admin.name, role: admin.role, status: admin.status },
     });
   } catch (error) {
     console.error('Error logging in user:', error);
@@ -49,10 +61,15 @@ function getCurrentAdmin(req, res) {
     return res.status(401).json({ message: 'Not authenticated' });
   }
 
+  // Return only safe admin information
   res.status(200).json({
     user: {
       id: req.admin._id,
       email: req.admin.email,
+      name: req.admin.name,
+      role: req.admin.role,
+      status: req.admin.status,
+      createdAt: req.admin.createdAt,
     },
   });
 }

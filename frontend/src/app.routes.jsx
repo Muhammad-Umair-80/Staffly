@@ -12,6 +12,9 @@ import AddProject from './pages/AddProject.jsx';
 import ProjectProfile from './pages/ProjectProfile.jsx';
 import EditProject from './pages/EditProject.jsx';
 import AdminProtected from './components/Admin.protected.jsx';
+import Admins from './pages/Admins.jsx';
+import AddAdmin from './pages/AddAdmin.jsx';
+import EditAdmin from './pages/EditAdmin.jsx';
 
 const AppRoutes = () => (
   <BrowserRouter>
@@ -38,6 +41,30 @@ const AppRoutes = () => (
         element={
           <AdminProtected>
             <Employees />
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/admins"
+        element={
+          <AdminProtected>
+            <Admins />
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/admins/add"
+        element={
+          <AdminProtected>
+            <AddAdmin />
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/admins/:id/edit"
+        element={
+          <AdminProtected>
+            <EditAdmin />
           </AdminProtected>
         }
       />

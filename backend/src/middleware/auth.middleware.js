@@ -18,6 +18,10 @@ async function authMiddleware(req, res, next) {
       return res.status(401).json({ message: 'Admin not found' });
     }
 
+    if (admin.status === 'disabled') {
+      return res.status(403).json({ message: 'Your admin account has been disabled' });
+    }
+
     req.user = decoded;
     req.admin = admin;
     next();
