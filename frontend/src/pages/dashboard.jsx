@@ -130,7 +130,7 @@ const Dashboard = () => {
               <h2>Employees</h2>
               <p>View the employee directory and manage employee records.</p>
             </Link>
-            <Link to="/archive" className="dashboard-action-card">
+            <Link to="/archived-employees" className="dashboard-action-card">
               <h2>Archive</h2>
               <p>Review archived employees and their leaving details.</p>
             </Link>

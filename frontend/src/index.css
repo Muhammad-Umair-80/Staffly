@@ -79,8 +79,9 @@ body {
    Keeps content responsive while allowing full-width layouts when not used. */
 .page-container {
   width: 100%;
-  max-width: 1400px; /* reasonable reading width, adjust if needed */
-  margin: 0 auto;
+  /* Allow pages that use .page-container to expand to full width when needed */
+  max-width: none;
+  margin: 0;
   padding: 24px 28px;
   box-sizing: border-box;
 }

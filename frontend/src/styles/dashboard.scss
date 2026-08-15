@@ -30,9 +30,10 @@ $border: #e2e8f0;
 /* Allow dashboard page to use wider layout without changing other pages */
 .dashboard-shell > .dashboard-card {
   /* Let the dashboard card expand to the available content area while keeping padding */
-  max-width: 100%;
+  max-width: none; /* allow full width */
   margin: 0;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .dashboard-card__header {

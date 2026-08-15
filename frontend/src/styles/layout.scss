@@ -16,9 +16,24 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition: width 0.18s ease, transform 0.18s ease, padding 0.18s ease, opacity 0.18s ease;
 }
 
-.sidebar.collapsed { width: 64px; }
+/* Collapsed state: hide sidebar visually and free up space for main content */
+.sidebar.collapsed {
+  width: 0;
+  padding: 0;
+  opacity: 0;
+  overflow: hidden;
+  border-right: none;
+}
+
+/* Backwards-compatible small 'icon-only' collapsed if you prefer a narrow sidebar */
+.app-layout.sidebar-icon .sidebar {
+  width: 64px;
+  opacity: 1;
+}
+
 
 .sidebar-brand {
   font-weight: 700;
@@ -42,7 +57,15 @@
 
 .sidebar-footer { margin-top: auto; }
 
-.app-main { flex: 1; display:flex; flex-direction: column; min-width: 0; }
+.app-main { flex: 1; display:flex; flex-direction: column; min-width: 0; width: 100%; }
+
+/* Force main content and children to stretch and avoid unexpected centering */
+.app-content, .app-content > * {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
 
 .topbar {
   height: 64px;
@@ -65,9 +88,28 @@
 
 /* Responsive */
 @media (max-width: 900px) {
-  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.2s ease; }
-  .app-layout.sidebar-collapsed .sidebar { transform: translateX(0); }
-  .sidebar.collapsed { width: 240px; }
+  /* Mobile: sidebar is off-canvas by default */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0;
+  }
+
+  /* When app-layout signals 'sidebar-collapsed' (toggled), show the sidebar as overlay */
+  .app-layout.sidebar-collapsed .sidebar,
+  .sidebar.collapsed {
+    transform: translateX(0);
+    opacity: 1;
+    width: 240px;
+    padding: 18px 12px;
+    border-right: 1px solid var(--border, #e2e8f0);
+  }
+
   .app-content { padding: 12px; }
 }
 
