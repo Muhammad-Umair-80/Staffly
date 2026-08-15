@@ -8,7 +8,7 @@ const persistToken = (token) => {
   }
 };
 
-const clearToken = () => {
+export const clearToken = () => {
   window.localStorage.removeItem('peoplehub-auth-token');
 };
 

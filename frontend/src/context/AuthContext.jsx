@@ -1,5 +1,5 @@
 import { createContext, useEffect, useMemo, useState } from 'react';
-import { getMe as getMeApi, login as loginApi } from '../services/auth.api.jsx';
+import { getMe as getMeApi, login as loginApi, clearToken as clearTokenApi } from '../services/auth.api.jsx';
 
 export const authContext = createContext(null);
 
@@ -49,8 +49,19 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const handleLogout = () => {
+    // remove persisted token and clear user from context
+    try {
+      clearTokenApi();
+    } catch (err) {
+      // ignore errors when clearing token
+      /* noop */
+    }
+    setUser(null);
+  };
+
   const value = useMemo(
-    () => ({ user, loading, error, setError, handleLogin }),
+    () => ({ user, loading, error, setError, handleLogin, handleLogout }),
     [user, loading, error]
   );
 

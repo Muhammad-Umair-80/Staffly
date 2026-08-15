@@ -1,8 +1,22 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import '../styles/layout.scss';
+import { useAuth } from '../hooks/auth.hooks.js';
 
 const Sidebar = ({ collapsed }) => {
+  const navigate = useNavigate();
+  const { handleLogout } = useAuth();
+
+  const handleLogoutClick = (e) => {
+    e.preventDefault();
+    try {
+      handleLogout();
+    } catch (err) {
+      // ignore errors during logout
+    }
+    navigate('/login');
+  };
+
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`} aria-label="Primary">
       <div className="sidebar-brand">STAFFLY</div>
@@ -25,7 +39,9 @@ const Sidebar = ({ collapsed }) => {
       </nav>
 
       <div className="sidebar-footer">
-        <a href="/logout" className="nav-item logout">Logout</a>
+        <button type="button" className="nav-item logout" onClick={handleLogoutClick} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'inherit', padding: 0, font: 'inherit' }}>
+          Logout
+        </button>
       </div>
     </aside>
   );
