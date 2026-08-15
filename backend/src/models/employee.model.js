@@ -67,6 +67,11 @@ const EmployeeSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    leavingDetails: {
+      type: String,
+      trim: true,
+      default: null,
+    },
     reportingTo: {
       type: String,
       trim: true,

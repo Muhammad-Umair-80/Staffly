@@ -54,7 +54,7 @@ export default function Admins() {
   };
 
   return (
-    <div className="dashboard-shell">
+    <div className="dashboard-shell" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <div className="dashboard-card">
         <div className="dashboard-card__header">
           <div>
@@ -87,7 +87,7 @@ export default function Admins() {
         ) : null}
 
         {!loading && !error ? (
-          <div className="employees-table-wrapper">
+          <div className="employees-table-wrapper" style={{ overflowX: 'auto', maxWidth: '100%', marginTop: '1rem' }}>
             <table className="employees-table">
               <thead>
                 <tr>

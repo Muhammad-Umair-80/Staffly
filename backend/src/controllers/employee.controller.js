@@ -15,6 +15,7 @@ const allowedFields = [
   'employmentStatus',
   'leavingDate',
   'leavingReason',
+  'leavingDetails',
   'reportingTo',
   'currentProject',
 ];
@@ -277,7 +278,7 @@ async function updateEmployee(req, res) {
 async function archiveEmployee(req, res) {
   try {
     const { id } = req.params;
-    const { leavingDate, leavingReason } = req.body;
+    const { leavingDate, leavingReason, leavingDetails } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: 'Invalid employee ID.' });
@@ -305,6 +306,10 @@ async function archiveEmployee(req, res) {
     employee.employmentStatus = 'archived';
     employee.leavingDate = parsedLeavingDate;
     employee.leavingReason = String(leavingReason).trim();
+
+    if (leavingDetails !== undefined && leavingDetails !== null) {
+      employee.leavingDetails = String(leavingDetails).trim();
+    }
 
     await employee.save();
 

@@ -191,7 +191,8 @@ const EmployeeProfile = () => {
         `${API_BASE}/api/employees/${employee._id}/archive`,
         {
           leavingDate: archiveDate,
-          leavingReason: finalReason,
+          leavingReason: normalizedReason,
+          leavingDetails: archiveDetails?.trim() || '',
         },
         {
           withCredentials: true,
@@ -279,6 +280,10 @@ const EmployeeProfile = () => {
       items.push({
         label: 'Leaving Reason',
         value: employee?.leavingReason || 'Not provided',
+      });
+      items.push({
+        label: 'Leaving Details',
+        value: employee?.leavingDetails || 'Not provided',
       });
     }
 

@@ -120,7 +120,7 @@ const Dashboard = () => {
         </section>
 
         {/* Main content: Quick actions + recent lists */}
-        <div className="dashboard-main">
+        <div className="dashboard-main" style ={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <div className="dashboard-actions">
             <Link to="/add-employee" className="dashboard-action-card">
               <h2>Add employee</h2>
@@ -144,7 +144,7 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          <div className="dashboard-lists">
+          <div className="dashboard-lists" style ={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div className="list-card">
               <div className="list-card__header">
                 <h3>Recent Employees</h3>

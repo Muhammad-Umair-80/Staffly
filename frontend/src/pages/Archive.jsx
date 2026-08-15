@@ -143,6 +143,10 @@ const Archive = () => {
                       <strong>{employee.leavingReason || 'Not provided'}</strong>
                     </div>
                     <div>
+                      <span>Leaving Details</span>
+                      <strong>{employee.leavingDetails || 'Not provided'}</strong>
+                    </div>
+                    <div>
                       <span>Status</span>
                       <strong>Archived</strong>
                     </div>
