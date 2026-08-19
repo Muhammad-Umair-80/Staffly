@@ -3,153 +3,178 @@
 @tailwind utilities;
 
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --primary-dark: #091426;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff;
+  
+  --bg-main: #f7f9fb;
+  --surface-card: #ffffff;
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  
+  --border-color: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
+  font-family: var(--sans);
+  color-scheme: light;
+  color: var(--text-main);
+  background: var(--bg-main);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-/* Tailwind base injected above to make utility classes available. */
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-body {
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
   margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
 }
 
 #root {
-  /* Allow app to use full browser width while keeping box sizing predictable */
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  /* Don't center text globally — let pages control alignment */
-  text-align: left;
-  /* Keep subtle border if needed; remove if it creates visual clipping on small screens */
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  box-sizing: border-box;
-}
-
-/* Global box-sizing for predictable layouts */
-*, *::before, *::after { box-sizing: border-box; }
-
-/* Utility: page container for optional constrained content
-   Use on page-level wrappers when a readable max-width is desired.
-   Keeps content responsive while allowing full-width layouts when not used. */
-.page-container {
   width: 100%;
-  /* Allow pages that use .page-container to expand to full width when needed */
-  max-width: none;
-  margin: 0;
-  padding: 24px 28px;
-  box-sizing: border-box;
+  max-width: 100%;
 }
 
-@media (max-width: 1024px) {
-  .page-container { padding: 20px; }
+/* Material symbols utility styling */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (max-width: 700px) {
-  .page-container { padding: 16px; }
+/* Global Button Styles */
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--primary);
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, shadow 0.15s ease;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Make sure html/body/root take full available viewport and don't introduce centering */
-html, body, #root {
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
+.primary-button:hover {
+  background-color: var(--primary-hover);
+  color: #ffffff;
+}
+
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: var(--text-main);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+}
+
+.secondary-button:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.text-link {
+  color: var(--primary);
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
   padding: 0;
 }
 
-/* Remove the border-inline that visually created vertical lines that may appear as boundaries */
-#root { border-inline: none; }
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+.text-link:hover {
+  text-decoration: underline;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
+/* Status Pill Badges */
+.status-badge {
   display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.status-badge--active {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+
+.status-badge--leave,
+.status-badge--on-leave {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-badge--archived,
+.status-badge--inactive {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+.status-badge--in-progress {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+.status-badge--completed {
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+
+/* Screen Reader Only Utility */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

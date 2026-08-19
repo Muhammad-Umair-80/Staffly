@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
-import '../styles/dashboard.scss';
-import '../styles/employees.scss';
+import '../styles/addEmployee.scss';
 import '../styles/projects.scss';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
@@ -94,86 +93,139 @@ const AddProject = () => {
   };
 
   return (
-    <div className="dashboard-shell">
+    <div className="add-employee-page">
       <Toaster position="top-right" />
-      <div className="dashboard-card">
-        <div className="dashboard-card__header">
-          <div>
-            <p className="dashboard-eyebrow">Staffly</p>
-            <h1>Add Project</h1>
-            <p className="dashboard-subtitle">Create a new project and assign employees.</p>
-          </div>
-        </div>
 
-        <form className="add-project-form" onSubmit={handleSubmit}>
-          <div className="add-project-field">
-            <label htmlFor="project-name">Project Name</label>
-            <input id="project-name" type="text" value={name} onChange={(event) => setName(event.target.value)} placeholder="PeopleHub" />
-          </div>
-
-          <div className="add-project-field">
-            <label htmlFor="project-description">Description</label>
-            <textarea
-              id="project-description"
-              rows="4"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Describe the project"
-            />
-          </div>
-
-          <div className="add-project-field">
-            <label htmlFor="project-status">Status</label>
-            <select id="project-status" value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="planning">Planning</option>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
-              <option value="on-hold">On hold</option>
-            </select>
-          </div>
-
-          <div className="add-project-field">
-            <label htmlFor="project-start-date">Start Date</label>
-            <input id="project-start-date" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
-          </div>
-
-          <div className="add-project-field">
-            <label htmlFor="project-end-date">End Date</label>
-            <input id="project-end-date" type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
-          </div>
-
-          <div className="add-project-field">
-            <label>Assign Employees</label>
-            {loading ? <p>Loading employees...</p> : null}
-            {!loading && employees.length === 0 ? <p>No employees found.</p> : null}
-            {!loading && employees.length > 0 ? (
-              <div className="employee-select-list">
-                {employees.map((employee) => {
-                  const checked = selectedEmployees.includes(employee._id);
-                  return (
-                    <label key={employee._id} className="employee-select-item">
-                      <input type="checkbox" checked={checked} onChange={() => toggleEmployee(employee._id)} />
-                      <div className="employee-select-meta">
-                        {employee.profileImage?.url ? <img src={employee.profileImage.url} alt={employee.fullName} /> : null}
-                        <span>{employee.fullName || employee.email}</span>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="archive-modal__actions">
-            <button type="button" className="secondary-button" onClick={() => navigate('/projects')}>
-              Cancel
-            </button>
-            <button type="submit" className="primary-button" disabled={submitting}>
-              {submitting ? 'Creating Project...' : 'Create Project'}
-            </button>
-          </div>
-        </form>
+      {/* Header Card */}
+      <div className="form-header-card">
+        <h1>Create New Project</h1>
+        <p>Define project scope, timelines, status, and assign team members.</p>
       </div>
+
+      <form className="add-employee-form" onSubmit={handleSubmit}>
+        <section className="form-section-card">
+          <h2 className="form-section-card__title">Project Information</h2>
+
+          <div className="form-grid-two-col">
+            <div className="field-group field-group--full">
+              <label htmlFor="project-name">Project Name *</label>
+              <input
+                id="project-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Staffly SaaS Mobile App"
+                required
+              />
+            </div>
+
+            <div className="field-group field-group--full">
+              <label htmlFor="project-description">Description</label>
+              <textarea
+                id="project-description"
+                rows="4"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe project key deliverables and scope..."
+              />
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="project-status">Project Status *</label>
+              <select id="project-status" value={status} onChange={(e) => setStatus(e.target.value)}>
+                <option value="planning">Planning</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="on-hold">On Hold</option>
+              </select>
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="project-start-date">Start Date *</label>
+              <input
+                id="project-start-date"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="field-group field-group--full">
+              <label htmlFor="project-end-date">Estimated End Date</label>
+              <input
+                id="project-end-date"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Team Assignments Section */}
+        <section className="form-section-card">
+          <h2 className="form-section-card__title">Assign Team Members</h2>
+
+          {loading ? (
+            <p style={{ color: '#64748b' }}>Loading employees...</p>
+          ) : employees.length === 0 ? (
+            <p style={{ color: '#64748b' }}>No employees available to assign.</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
+              {employees.map((employee) => {
+                const checked = selectedEmployees.includes(employee._id);
+                return (
+                  <label
+                    key={employee._id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '10px 14px',
+                      border: checked ? '1px solid var(--primary, #2563eb)' : '1px solid #e2e8f0',
+                      backgroundColor: checked ? '#eff6ff' : '#ffffff',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleEmployee(employee._id)}
+                      style={{ width: '16px', height: '16px', accentColor: '#2563eb' }}
+                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      {employee.profileImage?.url ? (
+                        <img src={employee.profileImage.url} alt={employee.fullName} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                      ) : (
+                        <div className="profile-avatar profile-avatar--fallback" style={{ width: '32px', height: '32px', fontSize: '12px' }}>
+                          {(employee.fullName || 'EM').slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{employee.fullName}</div>
+                        <div style={{ fontSize: '11px', color: '#64748b' }}>{employee.role || 'Employee'}</div>
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* Action Buttons */}
+        <div className="form-actions-row">
+          <Link to="/projects" className="secondary-button">
+            Cancel
+          </Link>
+          <button type="submit" className="primary-button" disabled={submitting}>
+            {submitting ? 'Creating Project...' : 'Create & Launch Project'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

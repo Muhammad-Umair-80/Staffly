@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
-import { BriefcaseBusiness, Building2, CalendarDays, MapPin, UploadCloud, UserRound, XCircle } from 'lucide-react';
 import { addEmployee } from '../services/addEmployee.api.jsx';
 import '../styles/addEmployee.scss';
 
@@ -48,9 +47,7 @@ const AddEmployee = () => {
   const handleImageSelection = (event) => {
     const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       setImageError('Please choose a JPG, JPEG, PNG, or WEBP image.');
@@ -80,12 +77,9 @@ const AddEmployee = () => {
   };
 
   const onSubmit = async (values) => {
-    if (imageError) {
-      return;
-    }
+    if (imageError) return;
 
     setImageError('');
-
     const formData = new FormData();
 
     if (selectedFile) {
@@ -111,169 +105,156 @@ const AddEmployee = () => {
   };
 
   return (
-    <div className="add-employee-shell">
+    <div className="add-employee-page">
       <Toaster position="top-right" />
-      <div className="add-employee-card">
-        <div className="add-employee-header">
-          <div>
-            <p className="add-employee-eyebrow">PeopleHub</p>
-            <h1>Add Employee</h1>
-            <p className="add-employee-subtitle">Create a new employee profile with professional details and a profile image.</p>
-          </div>
-        </div>
 
-        <form className="add-employee-form" onSubmit={handleSubmit(onSubmit)}>
-          <section className="form-section">
-            <div className="section-heading">
-              <UserRound size={18} />
-              <h2>Personal Information</h2>
-            </div>
-
-            <div className="image-upload-card">
-              {previewUrl ? (
-                <>
-                  <img src={previewUrl} alt="Selected employee preview" className="image-preview" />
-                  <div className="image-upload-actions">
-                    <label className="image-action-button" htmlFor="profileImage">
-                      <UploadCloud size={16} />
-                      Change image
-                    </label>
-                    <button type="button" className="image-action-button image-action-button--secondary" onClick={removeSelectedImage}>
-                      <XCircle size={16} />
-                      Remove
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="image-upload-placeholder">
-                  <UploadCloud size={20} />
-                  <p>Upload a profile picture</p>
-                  <label className="primary-button primary-button--small" htmlFor="profileImage">
-                    Choose image
-                  </label>
-                </div>
-              )}
-              <input id="profileImage" type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleImageSelection} />
-              {imageError ? <p className="field-error">{imageError}</p> : null}
-            </div>
-
-            <div className="form-grid">
-              <div className="field-group">
-                <label htmlFor="fullName">Full Name</label>
-                <input
-                  id="fullName"
-                  type="text"
-                  placeholder="Jordan Lee"
-                  {...register('fullName', { required: 'Full name is required.' })}
-                />
-                {errors.fullName ? <p className="field-error">{errors.fullName.message}</p> : null}
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="jordan.lee@peoplehub.com"
-                  {...register('email', {
-                    required: 'Email is required.',
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Please enter a valid email address.',
-                    },
-                  })}
-                />
-                {errors.email ? <p className="field-error">{errors.email.message}</p> : null}
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="phone">Phone</label>
-                <input id="phone" type="tel" placeholder="+1 555 0100" {...register('phone', { required: 'Phone is required.' })} />
-                {errors.phone ? <p className="field-error">{errors.phone.message}</p> : null}
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="city">City</label>
-                <input id="city" type="text" placeholder="Chicago" {...register('city', { required: 'City is required.' })} />
-                {errors.city ? <p className="field-error">{errors.city.message}</p> : null}
-              </div>
-
-              <div className="field-group field-group--full">
-                <label htmlFor="address">Address</label>
-                <textarea id="address" rows="3" placeholder="Enter office address" {...register('address')} />
-              </div>
-            </div>
-          </section>
-
-          <section className="form-section">
-            <div className="section-heading">
-              <BriefcaseBusiness size={18} />
-              <h2>Employment Information</h2>
-            </div>
-
-            <div className="form-grid">
-              <div className="field-group">
-                <label htmlFor="employeeId">Employee ID</label>
-                <input id="employeeId" type="text" placeholder="EMP-1042" {...register('employeeId', { required: 'Employee ID is required.' })} />
-                {errors.employeeId ? <p className="field-error">{errors.employeeId.message}</p> : null}
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="role">Role</label>
-                <input id="role" type="text" placeholder="Software Engineer" {...register('role', { required: 'Role is required.' })} />
-                {errors.role ? <p className="field-error">{errors.role.message}</p> : null}
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="department">Department</label>
-                <input id="department" type="text" placeholder="Engineering" {...register('department', { required: 'Department is required.' })} />
-                {errors.department ? <p className="field-error">{errors.department.message}</p> : null}
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="joiningDate">Joining Date</label>
-                <div className="icon-input">
-                  <CalendarDays size={16} />
-                  <input id="joiningDate" type="date" {...register('joiningDate', { required: 'Joining date is required.' })} />
-                </div>
-                {errors.joiningDate ? <p className="field-error">{errors.joiningDate.message}</p> : null}
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="employmentStatus">Employment Status</label>
-                <div className="icon-input">
-                  <Building2 size={16} />
-                  <select id="employmentStatus" {...register('employmentStatus', { required: 'Employment status is required.' })}>
-                    <option value="active">Active</option>
-                    <option value="on-leave">On leave</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </div>
-                {errors.employmentStatus ? <p className="field-error">{errors.employmentStatus.message}</p> : null}
-              </div>
-
-              <div className="field-group">
-                <label htmlFor="reportingTo">Reporting To</label>
-                <input id="reportingTo" type="text" placeholder="VP of Engineering" {...register('reportingTo')} />
-              </div>
-
-              <div className="field-group field-group--full">
-                <label htmlFor="currentProject">Current Project</label>
-                <div className="icon-input">
-                  <MapPin size={16} />
-                  <input id="currentProject" type="text" placeholder="Customer Portal" {...register('currentProject')} />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <div className="submit-row">
-            <button type="submit" className="primary-button" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating Employee...' : 'Add Employee'}
-            </button>
-          </div>
-        </form>
+      {/* Header Card */}
+      <div className="form-header-card">
+        <h1>Add New Employee</h1>
+        <p>Create a new employee profile with personal details, role, department, and profile image.</p>
       </div>
+
+      <form className="add-employee-form" onSubmit={handleSubmit(onSubmit)}>
+        {/* Personal Details Section */}
+        <section className="form-section-card">
+          <h2 className="form-section-card__title">Personal Details</h2>
+
+          {/* Profile Image Dropzone */}
+          <div className="image-upload-area">
+            {previewUrl ? (
+              <img src={previewUrl} alt="Selected preview" className="image-upload-preview" />
+            ) : (
+              <div className="image-upload-placeholder">
+                <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>account_circle</span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <label htmlFor="profileImage" className="secondary-button" style={{ padding: '6px 14px', fontSize: '13px', cursor: 'pointer' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                <span>{previewUrl ? 'Change Photo' : 'Upload Photo'}</span>
+              </label>
+
+              {previewUrl && (
+                <button type="button" className="secondary-button" onClick={removeSelectedImage} style={{ padding: '6px 14px', fontSize: '13px', color: '#dc2626' }}>
+                  Remove
+                </button>
+              )}
+            </div>
+
+            <input id="profileImage" type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleImageSelection} style={{ display: 'none' }} />
+            {imageError && <p className="field-error">{imageError}</p>}
+          </div>
+
+          <div className="form-grid-two-col">
+            <div className="field-group">
+              <label htmlFor="fullName">Full Name *</label>
+              <input
+                id="fullName"
+                type="text"
+                placeholder="e.g. Muhammad Umair"
+                {...register('fullName', { required: 'Full name is required.' })}
+              />
+              {errors.fullName && <p className="field-error">{errors.fullName.message}</p>}
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="email">Email Address *</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="e.g. umair@staffly.com"
+                {...register('email', {
+                  required: 'Email is required.',
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Please enter a valid email address.',
+                  },
+                })}
+              />
+              {errors.email && <p className="field-error">{errors.email.message}</p>}
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="phone">Phone Number *</label>
+              <input id="phone" type="tel" placeholder="+92 300 1234567" {...register('phone', { required: 'Phone is required.' })} />
+              {errors.phone && <p className="field-error">{errors.phone.message}</p>}
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="city">City *</label>
+              <input id="city" type="text" placeholder="Lahore" {...register('city', { required: 'City is required.' })} />
+              {errors.city && <p className="field-error">{errors.city.message}</p>}
+            </div>
+
+            <div className="field-group field-group--full">
+              <label htmlFor="address">Full Address</label>
+              <textarea id="address" rows="3" placeholder="Enter residential address" {...register('address')} />
+            </div>
+          </div>
+        </section>
+
+        {/* Employment Information Section */}
+        <section className="form-section-card">
+          <h2 className="form-section-card__title">Employment Information</h2>
+
+          <div className="form-grid-two-col">
+            <div className="field-group">
+              <label htmlFor="employeeId">Employee ID *</label>
+              <input id="employeeId" type="text" placeholder="EMP-001" {...register('employeeId', { required: 'Employee ID is required.' })} />
+              {errors.employeeId && <p className="field-error">{errors.employeeId.message}</p>}
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="role">Job Title / Role *</label>
+              <input id="role" type="text" placeholder="Software Engineer" {...register('role', { required: 'Role is required.' })} />
+              {errors.role && <p className="field-error">{errors.role.message}</p>}
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="department">Department *</label>
+              <input id="department" type="text" placeholder="Engineering" {...register('department', { required: 'Department is required.' })} />
+              {errors.department && <p className="field-error">{errors.department.message}</p>}
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="joiningDate">Joining Date *</label>
+              <input id="joiningDate" type="date" {...register('joiningDate', { required: 'Joining date is required.' })} />
+              {errors.joiningDate && <p className="field-error">{errors.joiningDate.message}</p>}
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="employmentStatus">Employment Status *</label>
+              <select id="employmentStatus" {...register('employmentStatus', { required: 'Status is required.' })}>
+                <option value="active">Active</option>
+                <option value="on-leave">On Leave</option>
+                <option value="archived">Archived</option>
+              </select>
+              {errors.employmentStatus && <p className="field-error">{errors.employmentStatus.message}</p>}
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="reportingTo">Reporting Manager / Supervisor</label>
+              <input id="reportingTo" type="text" placeholder="Engineering Lead" {...register('reportingTo')} />
+            </div>
+
+            <div className="field-group field-group--full">
+              <label htmlFor="currentProject">Current Assigned Project</label>
+              <input id="currentProject" type="text" placeholder="Internal Portal V2" {...register('currentProject')} />
+            </div>
+          </div>
+        </section>
+
+        {/* Action Buttons */}
+        <div className="form-actions-row">
+          <Link to="/employees" className="secondary-button">
+            Cancel
+          </Link>
+          <button type="submit" className="primary-button" disabled={isSubmitting}>
+            {isSubmitting ? 'Creating Employee...' : 'Save & Create Employee'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

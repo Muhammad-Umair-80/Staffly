@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../styles/dashboard.scss';
-import '../styles/employees.scss';
 import '../styles/projects.scss';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
@@ -22,6 +20,7 @@ const getInitials = (name = '') => {
 };
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -50,81 +49,106 @@ const Projects = () => {
   }, []);
 
   return (
-    <div className="dashboard-shell">
-      <div className="dashboard-card">
-        <div className="dashboard-card__header">
-          <div>
-            <p className="dashboard-eyebrow">Staffly</p>
-            <h1>Projects</h1>
-            <p className="dashboard-subtitle">Manage company projects and team assignments.</p>
-          </div>
-          <Link to="/projects/add" className="primary-button" style={{ textDecoration: 'none', display: 'inline-flex' }}>
-            + Add Project
+    <div className="projects-page">
+      {/* Header Row */}
+      <div className="projects-header-row">
+        <div>
+          <h1>Projects Directory</h1>
+          <p>Track active projects, deadlines, and assigned team members.</p>
+        </div>
+        <Link to="/projects/add" className="primary-button">
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
+          <span>Add Project</span>
+        </Link>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>Loading projects...</div>
+      ) : null}
+
+      {!loading && error ? (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#dc2626' }}>
+          <h2>Unable to load projects</h2>
+          <button type="button" className="secondary-button" onClick={loadProjects} style={{ marginTop: '12px' }}>
+            Try Again
+          </button>
+        </div>
+      ) : null}
+
+      {!loading && !error && projects.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+          <h2>No projects created yet</h2>
+          <p style={{ color: '#64748b', margin: '8px 0 16px 0' }}>Get started by adding your first project.</p>
+          <Link to="/projects/add" className="primary-button">
+            Add Project
           </Link>
         </div>
+      ) : null}
 
-        {loading ? (
-          <div className="content-state">Loading projects...</div>
-        ) : null}
-
-        {!loading && error ? (
-          <div className="content-state content-state--error">
-            <h2>Unable to load projects.</h2>
-            <button type="button" className="secondary-button" onClick={loadProjects}>
-              Try Again
-            </button>
-          </div>
-        ) : null}
-
-        {!loading && !error && projects.length === 0 ? (
-          <div className="content-state">
-            <h2>No projects yet.</h2>
-            <p>Create your first project to get started.</p>
-            <Link to="/projects/add" className="primary-button" style={{ textDecoration: 'none', display: 'inline-flex' }}>
-              Add Project
-            </Link>
-          </div>
-        ) : null}
-
-        {!loading && !error && projects.length > 0 ? (
-          <div className="project-grid">
-            {projects.map((project) => (
-              <div className="project-card" key={project._id}>
-                <div className="project-card__header">
-                  <div>
-                    <h2>{project.name}</h2>
-                    <p>{project.description || 'No description provided.'}</p>
-                  </div>
-                  <span className={`project-status project-status--${project.status}`}>{project.status}</span>
+      {!loading && !error && projects.length > 0 ? (
+        <div className="projects-grid">
+          {projects.map((project) => (
+            <div 
+              className="project-card" 
+              key={project._id}
+              onClick={() => navigate(`/projects/${project._id}`)}
+            >
+              <div>
+                <div className="project-card__top">
+                  <h2 className="project-card__title">{project.name}</h2>
+                  <span className={`project-status-pill project-status-pill--${project.status}`}>
+                    {project.status}
+                  </span>
                 </div>
+                <p className="project-card__desc">{project.description || 'No description provided.'}</p>
 
-                <div className="project-meta">
-                  <span>Start: {formatDate(project.startDate)}</span>
-                  <span>End: {formatDate(project.endDate)}</span>
-                  <span>{project.assignedEmployees?.length || 0} assigned</span>
-                </div>
-
-                <div className="project-footer">
-                  <div className="project-assignees">
-                    {(project.assignedEmployees || []).slice(0, 5).map((employee) => (
-                      <div key={employee._id} className="project-assignee" title={employee.fullName || 'Employee'}>
-                        {employee.profileImage?.url ? (
-                          <img className="project-assignee project-assignee--image" src={employee.profileImage.url} alt={employee.fullName || 'Employee'} />
-                        ) : (
-                          getInitials(employee.fullName || 'Employee')
-                        )}
-                      </div>
-                    ))}
+                <div className="project-meta-pills">
+                  <div className="project-meta-pill-item">
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>calendar_today</span>
+                    <span>Start: {formatDate(project.startDate)}</span>
                   </div>
-                  <Link to={`/projects/${project._id}`} className="secondary-button" style={{ textDecoration: 'none', display: 'inline-flex' }}>
-                    View
-                  </Link>
+                  <div className="project-meta-pill-item">
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>event</span>
+                    <span>End: {formatDate(project.endDate)}</span>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : null}
-      </div>
+
+              <div className="project-card__footer">
+                <div className="assignees-avatar-stack">
+                  {(project.assignedEmployees || []).slice(0, 4).map((employee) => (
+                    employee.profileImage?.url ? (
+                      <img 
+                        key={employee._id} 
+                        className="assignee-avatar-bubble" 
+                        src={employee.profileImage.url} 
+                        alt={employee.fullName || 'Employee'} 
+                        title={employee.fullName || 'Employee'}
+                      />
+                    ) : (
+                      <div 
+                        key={employee._id} 
+                        className="assignee-avatar-bubble" 
+                        title={employee.fullName || 'Employee'}
+                      >
+                        {getInitials(employee.fullName || 'EM')}
+                      </div>
+                    )
+                  ))}
+                  {(project.assignedEmployees?.length || 0) > 4 && (
+                    <span className="assignee-count-badge">+{project.assignedEmployees.length - 4} more</span>
+                  )}
+                </div>
+
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary, #2563eb)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  View details
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 };

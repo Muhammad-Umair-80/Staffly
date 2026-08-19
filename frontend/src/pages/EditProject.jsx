@@ -1,27 +1,21 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import '../styles/dashboard.scss';
-import '../styles/employees.scss';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import '../styles/addEmployee.scss';
 
 const EditProject = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   return (
-    <div className="dashboard-shell">
-      <div className="dashboard-card">
-        <div className="dashboard-card__header">
-          <div>
-            <p className="dashboard-eyebrow">Staffly</p>
-            <h1>Edit Project</h1>
-            <p className="dashboard-subtitle">Editing is not implemented yet for this step.</p>
-          </div>
-        </div>
-        <div className="content-state">
-          <p>Project editing will be added in a future step.</p>
-          <button type="button" className="primary-button" onClick={() => navigate(`/projects/${id}`)}>
-            Back to Project
-          </button>
-        </div>
+    <div className="add-employee-page">
+      <div className="form-header-card">
+        <h1>Edit Project</h1>
+        <p>Update project details and team assignments.</p>
+      </div>
+      <div className="form-section-card" style={{ textAlign: 'center', padding: '40px' }}>
+        <p style={{ color: '#64748b', margin: '0 0 16px 0' }}>Project editing for ID #{id} will be supported in upcoming system updates.</p>
+        <Link to={`/projects/${id}`} className="primary-button">
+          Back to Project Profile
+        </Link>
       </div>
     </div>
   );

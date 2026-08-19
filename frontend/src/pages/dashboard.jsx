@@ -19,22 +19,12 @@ const Dashboard = () => {
 
     try {
       const token = window.localStorage.getItem('peoplehub-auth-token');
-
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       const [empResp, archivedResp, projResp] = await Promise.all([
-        axios.get(
-          `${API_BASE}/api/employees`,
-          { withCredentials: true, headers }
-        ),
-        axios.get(
-          `${API_BASE}/api/employees?status=archived`,
-          { withCredentials: true, headers }
-        ),
-        axios.get(
-          `${API_BASE}/api/projects`,
-          { withCredentials: true, headers }
-        ),
+        axios.get(`${API_BASE}/api/employees`, { withCredentials: true, headers }),
+        axios.get(`${API_BASE}/api/employees?status=archived`, { withCredentials: true, headers }),
+        axios.get(`${API_BASE}/api/projects`, { withCredentials: true, headers }),
       ]);
 
       setEmployees(empResp.data?.employees || []);
@@ -68,217 +58,285 @@ const Dashboard = () => {
 
   const recentEmployees = employees.slice(0, 5);
   const recentArchived = archived.slice(0, 5);
-  const recentProjects = projects.slice(0, 5);
+  const recentProjects = projects.slice(0, 3);
 
   return (
     <div className="dashboard-shell">
-      <div className="dashboard-card">
-        <div className="dashboard-card__header">
-          <div>
-            <p className="dashboard-eyebrow">Staffly</p>
-            <h1>Admin Dashboard</h1>
-            <p className="dashboard-subtitle">Overview of employees and projects.</p>
+      {/* Page Header */}
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">Dashboard</h1>
+        <p className="dashboard-subtitle">Overview of your organization, active employees, and ongoing projects.</p>
+      </div>
+
+      {/* Statistics Cards */}
+      <section className="dashboard-stats">
+        {loading ? (
+          <div className="stats-grid">
+            <div className="stat-card">...</div>
+            <div className="stat-card">...</div>
+            <div className="stat-card">...</div>
+            <div className="stat-card">...</div>
+          </div>
+        ) : error ? (
+          <div className="empty-state">
+            <h4>Unable to load dashboard data</h4>
+            <p>Please check your connection and try again.</p>
+            <button type="button" className="secondary-button" onClick={fetchData}>
+              Retry
+            </button>
+          </div>
+        ) : (
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-card__top">
+                <div className="stat-card__icon stat-card__icon--blue">
+                  <span className="material-symbols-outlined">group</span>
+                </div>
+              </div>
+              <div className="stat-card__value">{stats.totalEmployees}</div>
+              <div className="stat-card__label">Total Employees</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-card__top">
+                <div className="stat-card__icon stat-card__icon--emerald">
+                  <span className="material-symbols-outlined">person_check</span>
+                </div>
+              </div>
+              <div className="stat-card__value">{stats.activeEmployees}</div>
+              <div className="stat-card__label">Active Employees</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-card__top">
+                <div className="stat-card__icon stat-card__icon--red">
+                  <span className="material-symbols-outlined">person_off</span>
+                </div>
+              </div>
+              <div className="stat-card__value">{stats.archivedEmployees}</div>
+              <div className="stat-card__label">Archived Employees</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-card__top">
+                <div className="stat-card__icon stat-card__icon--amber">
+                  <span className="material-symbols-outlined">assignment</span>
+                </div>
+              </div>
+              <div className="stat-card__value">{stats.totalProjects}</div>
+              <div className="stat-card__label">Total Projects</div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Quick Actions Bar */}
+      <section className="quick-actions-section">
+        <h2 className="section-title">Quick Actions</h2>
+        <div className="quick-actions-bar">
+          <Link to="/add-employee" className="action-btn action-btn--primary">
+            <span className="material-symbols-outlined">person_add</span>
+            <span>Add Employee</span>
+          </Link>
+
+          <Link to="/employees" className="action-btn action-btn--secondary">
+            <span className="material-symbols-outlined">group</span>
+            <span>Employees</span>
+          </Link>
+
+          <Link to="/projects" className="action-btn action-btn--secondary">
+            <span className="material-symbols-outlined">assignment</span>
+            <span>Projects</span>
+          </Link>
+
+          <Link to="/archived-employees" className="action-btn action-btn--secondary">
+            <span className="material-symbols-outlined">archive</span>
+            <span>Archive</span>
+          </Link>
+
+          <Link to="/admins" className="action-btn action-btn--secondary">
+            <span className="material-symbols-outlined">admin_panel_settings</span>
+            <span>Admins</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* Bento Grid: Recent Employees & Recently Archived */}
+      <div className="bento-grid">
+        {/* Recent Employees Data Table */}
+        <div className="bento-card">
+          <div className="bento-card__header">
+            <h3>Recent Employees</h3>
+            <button className="text-link" onClick={() => navigate('/employees')}>
+              View All
+            </button>
+          </div>
+          <div className="bento-card__body">
+            {loading ? (
+              <div className="empty-state"><p>Loading employees...</p></div>
+            ) : recentEmployees.length === 0 ? (
+              <div className="empty-state">
+                <h4>No employees yet</h4>
+                <p>Start by adding your first employee.</p>
+                <Link to="/add-employee" className="primary-button">Add Employee</Link>
+              </div>
+            ) : (
+              <table className="recent-table">
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joining Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentEmployees.map((e) => (
+                    <tr 
+                      key={e._id} 
+                      onClick={() => navigate(`/employees/${e._id}`)} 
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <td>
+                        <div className="user-cell">
+                          {e.profileImage?.url ? (
+                            <img className="user-cell-avatar" src={e.profileImage.url} alt={e.fullName} />
+                          ) : (
+                            <div className="user-cell-fallback">
+                              {(e.fullName || '').split(' ').map((p) => p[0]).slice(0,2).join('').toUpperCase()}
+                            </div>
+                          )}
+                          <div className="user-cell-meta">
+                            <span className="user-cell-name">{e.fullName}</span>
+                            <span className="user-cell-email">{e.email}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{e.role || '—'}</td>
+                      <td>
+                        <span className={`status-badge status-badge--${e.employmentStatus === 'active' ? 'active' : 'inactive'}`}>
+                          {e.employmentStatus === 'active' ? 'Active' : e.employmentStatus}
+                        </span>
+                      </td>
+                      <td>{e.joiningDate ? new Date(e.joiningDate).toLocaleDateString() : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
-        {/* Statistics */}
-        <section className="dashboard-stats">
-          {loading ? (
-            <div className="stats-row">
-              <div className="stat-card">...</div>
-              <div className="stat-card">...</div>
-              <div className="stat-card">...</div>
-              <div className="stat-card">...</div>
-            </div>
-          ) : error ? (
-            <div className="content-state content-state--error">
-              <p>Unable to load dashboard data.</p>
-              <button type="button" className="secondary-button" onClick={fetchData}>
-                Retry
-              </button>
-            </div>
-          ) : (
-            <div className="stats-row">
-              <div className="stat-card">
-                <div className="stat-card__title">Total Employees</div>
-                <div className="stat-card__value">{stats.totalEmployees}</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-card__title">Active Employees</div>
-                <div className="stat-card__value">{stats.activeEmployees}</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-card__title">Archived Employees</div>
-                <div className="stat-card__value">{stats.archivedEmployees}</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-card__title">Total Projects</div>
-                <div className="stat-card__value">{stats.totalProjects}</div>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* Main content: Quick actions + recent lists */}
-        <div className="dashboard-main" style ={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <div className="dashboard-actions">
-            <Link to="/add-employee" className="dashboard-action-card">
-              <h2>Add employee</h2>
-              <p>Create a new employee profile and upload a profile image.</p>
-            </Link>
-            <Link to="/employees" className="dashboard-action-card">
-              <h2>Employees</h2>
-              <p>View the employee directory and manage employee records.</p>
-            </Link>
-            <Link to="/archived-employees" className="dashboard-action-card">
-              <h2>Archive</h2>
-              <p>Review archived employees and their leaving details.</p>
-            </Link>
-            <Link to="/projects" className="dashboard-action-card">
-              <h2>Projects</h2>
-              <p>Track company projects and employee assignments.</p>
-            </Link>
-            <Link to="/admins" className="dashboard-action-card">
-              <h2>Admins</h2>
-              <p>Manage system administrators.</p>
-            </Link>
+        {/* Recently Archived Feed */}
+        <div className="bento-card">
+          <div className="bento-card__header">
+            <h3>Recently Archived</h3>
+            <button className="text-link" onClick={() => navigate('/archived-employees')}>
+              View Archive
+            </button>
           </div>
-
-          <div className="dashboard-lists" style ={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div className="list-card">
-              <div className="list-card__header">
-                <h3>Recent Employees</h3>
-                <button className="text-link" onClick={() => navigate('/employees')}>
-                  View All
-                </button>
+          <div className="bento-card__body">
+            {loading ? (
+              <div className="empty-state"><p>Loading archive...</p></div>
+            ) : recentArchived.length === 0 ? (
+              <div className="empty-state">
+                <h4>No archived employees</h4>
+                <p>Archived employees will appear here.</p>
               </div>
-
-              {loading ? (
-                <div className="list-loading">
-                  <div className="list-loading__row" />
-                  <div className="list-loading__row" />
-                  <div className="list-loading__row" />
-                </div>
-              ) : recentEmployees.length === 0 ? (
-                <div className="content-state">
-                  <h4>No employees yet</h4>
-                  <p>Start by adding your first employee.</p>
-                  <Link to="/add-employee" className="primary-button">
-                    Add Employee
-                  </Link>
-                </div>
-              ) : (
-                <ul className="recent-list">
-                  {recentEmployees.map((e) => (
-                    <li key={e._id} className="recent-list__item">
-                      <div className="recent-list__photo">
-                        {e.profileImage?.url ? (
-                          // eslint-disable-next-line jsx-a11y/img-redundant-alt
-                          <img src={e.profileImage.url} alt={`Photo of ${e.fullName}`} />
-                        ) : (
-                          <div className="avatar-fallback">{(e.fullName || '').split(' ').map((p) => p[0]).slice(0,2).join('').toUpperCase()}</div>
-                        )}
+            ) : (
+              <ul className="archived-feed">
+                {recentArchived.map((a) => (
+                  <li key={a._id} className="archived-feed-item">
+                    <div className="archived-info">
+                      <div className="user-cell-fallback" style={{ width: '32px', height: '32px', fontSize: '11px', backgroundColor: '#fef2f2', color: '#dc2626' }}>
+                        {(a.fullName || '').split(' ').map((p) => p[0]).slice(0,2).join('').toUpperCase()}
                       </div>
-                      <div className="recent-list__meta">
-                        <strong>{e.fullName}</strong>
-                        <span>{e.role || '—'}</span>
-                      </div>
-                      <div className="recent-list__status">
-                        <span className={`employee-status employee-status--${e.employmentStatus === 'active' ? 'active' : 'neutral'}`}>
-                          {e.employmentStatus === 'active' ? 'Active' : e.employmentStatus}
-                        </span>
-                        <small>{e.joiningDate ? new Date(e.joiningDate).toLocaleDateString() : ''}</small>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="list-card">
-              <div className="list-card__header">
-                <h3>Recent Projects</h3>
-                <button className="text-link" onClick={() => navigate('/projects')}>
-                  View All
-                </button>
-              </div>
-
-              {loading ? (
-                <div className="list-loading">
-                  <div className="list-loading__row" />
-                  <div className="list-loading__row" />
-                </div>
-              ) : recentProjects.length === 0 ? (
-                <div className="content-state">
-                  <h4>No projects yet</h4>
-                  <p>Create your first project.</p>
-                  <Link to="/add-project" className="primary-button">
-                    Add Project
-                  </Link>
-                </div>
-              ) : (
-                <ul className="recent-list recent-projects">
-                  {recentProjects.map((p) => (
-                    <li key={p._id} className="recent-list__item recent-project-item" onClick={() => navigate(`/projects/${p._id}`)}>
-                      <div className="recent-list__meta">
-                        <strong>{p.name}</strong>
-                        <span className="muted">{p.status}</span>
-                      </div>
-                      <div className="recent-list__status">
-                        <small>Start: {p.startDate ? new Date(p.startDate).toLocaleDateString() : '—'}</small>
-                        <small>{(p.assignedEmployees || []).length} assigned</small>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="list-card">
-              <div className="list-card__header">
-                <h3>Recently Archived</h3>
-                <button className="text-link" onClick={() => navigate('/archive')}>
-                  View Archive
-                </button>
-              </div>
-
-              {loading ? (
-                <div className="list-loading">
-                  <div className="list-loading__row" />
-                  <div className="list-loading__row" />
-                </div>
-              ) : recentArchived.length === 0 ? (
-                <div className="content-state">
-                  <h4>No archived employees</h4>
-                </div>
-              ) : (
-                <ul className="recent-list">
-                  {recentArchived.map((a) => (
-                    <li key={a._id} className="recent-list__item">
-                      <div className="recent-list__photo">
-                        {a.profileImage?.url ? (
-                          // eslint-disable-next-line jsx-a11y/img-redundant-alt
-                          <img src={a.profileImage.url} alt={`Photo of ${a.fullName}`} />
-                        ) : (
-                          <div className="avatar-fallback">{(a.fullName || '').split(' ').map((p) => p[0]).slice(0,2).join('').toUpperCase()}</div>
-                        )}
-                      </div>
-                      <div className="recent-list__meta">
+                      <div className="archived-meta">
                         <strong>{a.fullName}</strong>
-                        <span>{a.role || '—'}</span>
+                        <span>{a.role || 'Archived'}</span>
                       </div>
-                      <div className="recent-list__status">
-                        <small>Left: {a.leavingDate ? new Date(a.leavingDate).toLocaleDateString() : '—'}</small>
-                        <small>{a.leavingReason || ''}</small>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+                    </div>
+                    <div className="archived-date">
+                      {a.leavingDate ? new Date(a.leavingDate).toLocaleDateString() : '—'}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Recent Projects Cards Grid */}
+      <section className="projects-grid-section">
+        <div className="bento-card__header" style={{ border: 'none', padding: '0 0 16px 0', background: 'transparent' }}>
+          <h2 className="section-title" style={{ margin: 0 }}>Recent Projects</h2>
+          <button className="text-link" onClick={() => navigate('/projects')}>
+            View All
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="projects-cards-grid">
+            <div className="project-bento-card">...</div>
+            <div className="project-bento-card">...</div>
+            <div className="project-bento-card">...</div>
+          </div>
+        ) : recentProjects.length === 0 ? (
+          <div className="bento-card">
+            <div className="empty-state">
+              <h4>No projects yet</h4>
+              <p>Track team tasks and projects here.</p>
+              <Link to="/projects/add" className="primary-button">Add Project</Link>
+            </div>
+          </div>
+        ) : (
+          <div className="projects-cards-grid">
+            {recentProjects.map((p) => (
+              <div 
+                key={p._id} 
+                className="project-bento-card" 
+                onClick={() => navigate(`/projects/${p._id}`)}
+              >
+                <div>
+                  <div className="project-bento-header">
+                    <h3 className="project-bento-name">{p.name}</h3>
+                    <span className="status-badge status-badge--in-progress">
+                      {p.status || 'Active'}
+                    </span>
+                  </div>
+                  <div className="project-bento-date">
+                    Start Date: {p.startDate ? new Date(p.startDate).toLocaleDateString() : '—'}
+                  </div>
+                </div>
+
+                <div className="project-bento-footer">
+                  <div className="team-avatar-stack">
+                    {(p.assignedEmployees || []).slice(0, 3).map((emp, idx) => (
+                      <div 
+                        key={emp._id || idx} 
+                        className="user-cell-fallback" 
+                        style={{ width: '26px', height: '26px', fontSize: '10px', border: '2px solid #fff' }}
+                        title={emp.fullName}
+                      >
+                        {(emp.fullName || 'E')[0]}
+                      </div>
+                    ))}
+                    {(p.assignedEmployees || []).length > 3 && (
+                      <div className="avatar-more">
+                        +{(p.assignedEmployees || []).length - 3}
+                      </div>
+                    )}
+                  </div>
+                  <span className="team-count">
+                    {(p.assignedEmployees || []).length} assigned
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };

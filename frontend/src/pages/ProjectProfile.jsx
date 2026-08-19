@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import '../styles/dashboard.scss';
-import '../styles/employees.scss';
 import '../styles/projects.scss';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
@@ -12,6 +10,13 @@ const formatDate = (value) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Not set';
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
+const getInitials = (name = '') => {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return 'EM';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 };
 
 const ProjectProfile = () => {
@@ -53,91 +58,109 @@ const ProjectProfile = () => {
   }, [id]);
 
   return (
-    <div className="dashboard-shell">
-      <div className="dashboard-card">
-        {loading ? <div className="content-state">Loading project...</div> : null}
+    <div className="projects-page">
+      {loading ? (
+        <div className="project-profile-card" style={{ textAlign: 'center', padding: '40px' }}>
+          <p style={{ color: '#64748b' }}>Loading project details...</p>
+        </div>
+      ) : null}
 
-        {!loading && notFound ? (
-          <div className="content-state">
-            <h2>Project not found</h2>
-            <p>The project you're looking for does not exist.</p>
-            <button type="button" className="primary-button" onClick={() => navigate('/projects')}>
-              Back to Projects
-            </button>
-          </div>
-        ) : null}
+      {!loading && notFound ? (
+        <div className="project-profile-card" style={{ textAlign: 'center', padding: '40px' }}>
+          <h2 style={{ fontSize: '18px', margin: '0 0 8px 0' }}>Project not found</h2>
+          <p style={{ color: '#64748b', margin: '0 0 16px 0' }}>The requested project does not exist.</p>
+          <button type="button" className="primary-button" onClick={() => navigate('/projects')}>
+            Back to Projects
+          </button>
+        </div>
+      ) : null}
 
-        {!loading && error ? (
-          <div className="content-state content-state--error">
-            <h2>Unable to load project.</h2>
-            <button type="button" className="secondary-button" onClick={loadProject}>
-              Try Again
-            </button>
-          </div>
-        ) : null}
+      {!loading && error ? (
+        <div className="project-profile-card" style={{ textAlign: 'center', padding: '40px' }}>
+          <h2 style={{ fontSize: '18px', margin: '0 0 8px 0', color: '#dc2626' }}>Unable to load project</h2>
+          <button type="button" className="secondary-button" onClick={loadProject}>
+            Try Again
+          </button>
+        </div>
+      ) : null}
 
-        {!loading && !error && !notFound && project ? (
-          <>
-            <div className="dashboard-card__header">
+      {!loading && !error && !notFound && project ? (
+        <>
+          {/* Header Card */}
+          <div className="project-profile-card">
+            <div className="project-profile-header">
               <div>
-                <p className="dashboard-eyebrow">Staffly</p>
-                <h1>{project.name}</h1>
-                <p className="dashboard-subtitle">Project overview and assigned employees.</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+                  <h1>{project.name}</h1>
+                  <span className={`project-status-pill project-status-pill--${project.status}`}>
+                    {project.status}
+                  </span>
+                </div>
+                <p>{project.description || 'No description provided.'}</p>
               </div>
-              <div className="profile-actions">
+
+              <div style={{ display: 'flex', gap: '12px' }}>
                 <button type="button" className="secondary-button" onClick={() => navigate('/projects')}>
                   Back to Projects
                 </button>
-                <button type="button" className="primary-button" onClick={() => navigate(`/projects/${project._id}/edit`)}>
-                  Edit Project
-                </button>
+                <Link to={`/projects/${project._id}/edit`} className="primary-button">
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
+                  <span>Edit Project</span>
+                </Link>
               </div>
             </div>
 
-            <div className="project-detail-card">
-              <div className="project-detail-row">
-                <span>Description</span>
-                <strong>{project.description || 'No description provided.'}</strong>
+            {/* Timeline Meta Row */}
+            <div className="project-meta-pills" style={{ margin: 0 }}>
+              <div className="project-meta-pill-item">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>calendar_today</span>
+                <span>Start Date: <strong>{formatDate(project.startDate)}</strong></span>
               </div>
-              <div className="project-detail-row">
-                <span>Status</span>
-                <strong>{project.status}</strong>
-              </div>
-              <div className="project-detail-row">
-                <span>Start Date</span>
-                <strong>{formatDate(project.startDate)}</strong>
-              </div>
-              <div className="project-detail-row">
-                <span>End Date</span>
-                <strong>{formatDate(project.endDate)}</strong>
+              <div className="project-meta-pill-item">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>event</span>
+                <span>End Date: <strong>{formatDate(project.endDate)}</strong></span>
               </div>
             </div>
+          </div>
 
-            <div className="project-detail-card" style={{ marginTop: 16 }}>
-              <div className="dashboard-card__header" style={{ marginBottom: 12 }}>
-                <h2 style={{ margin: 0 }}>Assigned Employees</h2>
-              </div>
-              {project.assignedEmployees?.length ? (
-                <div className="project-grid">
-                  {project.assignedEmployees.map((employee) => (
-                    <div key={employee._id} className="project-card">
-                      <div className="project-card__header" style={{ marginBottom: 0 }}>
-                        <div>
-                          <h2>{employee.fullName || 'Employee'}</h2>
-                          <p>{employee.role || 'Role not provided'}</p>
-                        </div>
-                        <span className="project-list-chip">{employee.employeeId || 'Employee'}</span>
+          {/* Assigned Team Members Section */}
+          <div className="project-profile-card">
+            <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-main)', margin: '0 0 16px 0', paddingBottom: '12px', borderBottom: '1px solid #e2e8f0' }}>
+              Assigned Team Members ({project.assignedEmployees?.length || 0})
+            </h2>
+
+            {project.assignedEmployees?.length ? (
+              <div className="project-assigned-grid">
+                {project.assignedEmployees.map((employee) => (
+                  <div 
+                    key={employee._id} 
+                    className="project-assigned-item"
+                    onClick={() => navigate(`/employees/${employee._id}`)}
+                  >
+                    {employee.profileImage?.url ? (
+                      <img 
+                        src={employee.profileImage.url} 
+                        alt={employee.fullName} 
+                        style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div className="profile-avatar profile-avatar--fallback" style={{ width: '40px', height: '40px', fontSize: '14px' }}>
+                        {getInitials(employee.fullName || 'EM')}
                       </div>
+                    )}
+                    <div>
+                      <h4 style={{ margin: '0 0 2px 0', fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>{employee.fullName || 'Employee'}</h4>
+                      <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>{employee.role || 'Role not provided'}</p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No employees assigned.</p>
-              )}
-            </div>
-          </>
-        ) : null}
-      </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ color: '#64748b' }}>No team members assigned to this project yet.</p>
+            )}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 };

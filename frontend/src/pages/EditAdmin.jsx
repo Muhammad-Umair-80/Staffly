@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../hooks/auth.hooks.js';
-import '../styles/dashboard.scss';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import '../styles/addEmployee.scss';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 
@@ -14,7 +13,6 @@ export default function EditAdmin() {
   const [role, setRole] = useState('admin');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,7 +30,6 @@ export default function EditAdmin() {
         setRole(response.data?.admin?.role || 'admin');
       } catch (err) {
         console.error(err);
-        alert('Unable to load admin');
       } finally {
         setLoading(false);
       }
@@ -42,16 +39,24 @@ export default function EditAdmin() {
 
   if (loading) {
     return (
-      <div className="dashboard-shell">
-        <div className="dashboard-card">Loading...</div>
+      <div className="add-employee-page">
+        <div className="form-header-card" style={{ textAlign: 'center', padding: '40px' }}>
+          <p style={{ color: '#64748b' }}>Loading admin profile details...</p>
+        </div>
       </div>
     );
   }
 
   if (!admin) {
     return (
-      <div className="dashboard-shell">
-        <div className="dashboard-card">Admin not found</div>
+      <div className="add-employee-page">
+        <div className="form-header-card" style={{ textAlign: 'center', padding: '40px' }}>
+          <h2>Admin Account Not Found</h2>
+          <p style={{ color: '#64748b', margin: '8px 0 16px 0' }}>The specified administrator account could not be found.</p>
+          <Link to="/admins" className="primary-button">
+            Back to Admins
+          </Link>
+        </div>
       </div>
     );
   }
@@ -65,7 +70,6 @@ export default function EditAdmin() {
         { name, email, role, password: password || undefined },
         { withCredentials: true, headers: { Authorization: token ? `Bearer ${token}` : undefined } }
       );
-      alert('Admin updated');
       navigate('/admins');
     } catch (err) {
       console.error(err);
@@ -74,49 +78,69 @@ export default function EditAdmin() {
   };
 
   return (
-    <div className="dashboard-shell">
-      <div className="dashboard-card">
-        <div className="dashboard-card__header">
-          <div>
-            <p className="dashboard-eyebrow">PeopleHub</p>
-            <h1>Edit Admin</h1>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} style={{ maxWidth: 520 }}>
-          <label>
-            Name
-            <input value={name} onChange={(e) => setName(e.target.value)} required />
-          </label>
-
-          <label>
-            Email
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </label>
-
-          <label>
-            Role
-            <select value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="admin">Admin</option>
-              <option value="super_admin">Super Admin</option>
-            </select>
-          </label>
-
-          <label>
-            New Password (leave empty to keep current)
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </label>
-
-          <div style={{ marginTop: 12 }}>
-            <button type="submit" className="primary-button">
-              Save
-            </button>
-            <button type="button" className="secondary-button" style={{ marginLeft: 8 }} onClick={() => navigate('/admins')}>
-              Cancel
-            </button>
-          </div>
-        </form>
+    <div className="add-employee-page">
+      <div className="form-header-card">
+        <h1>Edit Admin Account</h1>
+        <p>Update administrator details, email, role permissions, or reset password.</p>
       </div>
+
+      <form className="add-employee-form" onSubmit={handleSubmit}>
+        <section className="form-section-card">
+          <h2 className="form-section-card__title">Account Information</h2>
+
+          <div className="form-grid-two-col">
+            <div className="field-group">
+              <label htmlFor="admin-name">Full Name *</label>
+              <input
+                id="admin-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="admin-email">Email Address *</label>
+              <input
+                id="admin-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="admin-role">Role &amp; Access Level *</label>
+              <select id="admin-role" value={role} onChange={(e) => setRole(e.target.value)}>
+                <option value="admin">Admin</option>
+                <option value="super_admin">Super Admin</option>
+              </select>
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="admin-password">New Password (optional)</label>
+              <input
+                id="admin-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Leave blank to keep existing"
+              />
+            </div>
+          </div>
+        </section>
+
+        <div className="form-actions-row">
+          <Link to="/admins" className="secondary-button">
+            Cancel
+          </Link>
+          <button type="submit" className="primary-button">
+            Save Changes
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

@@ -1,58 +1,38 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Toaster, toast } from 'react-hot-toast';
 import '../styles/employeeProfile.scss';
-import '../styles/ArchivedEmployee.scss';
-import '../styles/employees.scss';
-import '../styles/projects.scss';
 import FeedbackList from '../components/feedback/FeedbackList';
 import AddFeedbackModal from '../components/feedback/AddFeedbackModal';
 import DocumentList from '../components/documents/DocumentList';
 import UploadDocumentModal from '../components/documents/UploadDocumentModal';
 
-import ProjectProfile  from '../pages/ProjectProfile.jsx';
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 
 const formatDate = (value) => {
-  if (!value) {
-    return 'Not provided';
-  }
-
+  if (!value) return 'Not provided';
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return 'Not provided';
-  }
-
+  if (Number.isNaN(date.getTime())) return 'Not provided';
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
 const getInitials = (name = '') => {
   const parts = name.trim().split(/\s+/).filter(Boolean);
-
-  if (parts.length === 0) {
-    return 'EM';
-  }
-
-  if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
-  }
-
+  if (parts.length === 0) return 'EM';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 };
 
 export const EmployeeEditPlaceholder = () => {
   const { id } = useParams();
-
   return (
-    <div className="dashboard-shell">
-      <div className="dashboard-card employee-profile-card">
-        <div className="content-state">
-          <p>Editing for employee {id} will be available soon.</p>
-          <Link to="/employees" className="primary-button" style={{ textDecoration: 'none', display: 'inline-flex' }}>
-            Back to Employees
-          </Link>
-        </div>
+    <div className="employee-profile-page">
+      <div className="profile-card" style={{ textAlign: 'center', padding: '40px' }}>
+        <p style={{ margin: '0 0 16px 0', color: '#64748b' }}>Editing for employee {id} will be available soon.</p>
+        <Link to="/employees" className="primary-button">
+          Back to Employees
+        </Link>
       </div>
     </div>
   );
@@ -87,8 +67,6 @@ const EmployeeProfile = () => {
   const openUploadDocument = () => setShowUploadDocument(true);
   const closeUploadDocument = () => setShowUploadDocument(false);
   const onDocumentUploaded = () => setRefreshDocumentsKey((k) => k + 1);
-
-
 
   const loadEmployee = async () => {
     setLoading(true);
@@ -166,9 +144,7 @@ const EmployeeProfile = () => {
   const handleArchiveSubmit = async (event) => {
     event.preventDefault();
 
-    if (archiving || !employee) {
-      return;
-    }
+    if (archiving || !employee) return;
 
     if (!archiveDate) {
       toast.error('Please provide a leaving date.');
@@ -182,8 +158,6 @@ const EmployeeProfile = () => {
     }
 
     setArchiving(true);
-
-    const finalReason = archiveDetails.trim() ? `${normalizedReason} — ${archiveDetails.trim()}` : normalizedReason;
 
     try {
       const token = window.localStorage.getItem('peoplehub-auth-token');
@@ -220,109 +194,61 @@ const EmployeeProfile = () => {
 
   const infoItems = useMemo(
     () => [
-      {
-        label: 'Email',
-        value: employee?.email || 'Not provided',
-      },
-      {
-        label: 'Phone',
-        value: employee?.phone || 'Not provided',
-      },
-      {
-        label: 'City',
-        value: employee?.city || 'Not provided',
-      },
-      {
-        label: 'Address',
-        value: employee?.address || 'Not provided',
-      },
+      { label: 'Email', value: employee?.email || 'Not provided' },
+      { label: 'Phone', value: employee?.phone || 'Not provided' },
+      { label: 'City', value: employee?.city || 'Not provided' },
+      { label: 'Address', value: employee?.address || 'Not provided' },
     ],
     [employee]
   );
 
   const employmentItems = useMemo(() => {
     const items = [
-      {
-        label: 'Employee ID',
-        value: employee?.employeeId || 'Not provided',
-      },
-      {
-        label: 'Role',
-        value: employee?.role || 'Not provided',
-      },
-      {
-        label: 'Department',
-        value: employee?.department || 'Not provided',
-      },
-      {
-        label: 'Joining Date',
-        value: formatDate(employee?.joiningDate),
-      },
-      {
-        label: 'Reporting To',
-        value: employee?.reportingTo || 'Not provided',
-      },
-      {
-        label: 'Current Project',
-        value: employee?.currentProject || 'Not provided',
-      },
-      {
-        label: 'Employment Status',
-        value: statusLabel,
-      },
+      { label: 'Employee ID', value: employee?.employeeId || 'Not provided' },
+      { label: 'Role', value: employee?.role || 'Not provided' },
+      { label: 'Department', value: employee?.department || 'Not provided' },
+      { label: 'Joining Date', value: formatDate(employee?.joiningDate) },
+      { label: 'Reporting To', value: employee?.reportingTo || 'Not provided' },
+      { label: 'Current Project', value: employee?.currentProject || 'Not provided' },
+      { label: 'Employment Status', value: statusLabel },
     ];
 
     if (isArchived) {
-      items.push({
-        label: 'Leaving Date',
-        value: formatDate(employee?.leavingDate),
-      });
-      items.push({
-        label: 'Leaving Reason',
-        value: employee?.leavingReason || 'Not provided',
-      });
-      items.push({
-        label: 'Leaving Details',
-        value: employee?.leavingDetails || 'Not provided',
-      });
+      items.push({ label: 'Leaving Date', value: formatDate(employee?.leavingDate) });
+      items.push({ label: 'Leaving Reason', value: employee?.leavingReason || 'Not provided' });
+      items.push({ label: 'Leaving Details', value: employee?.leavingDetails || 'Not provided' });
     }
 
     return items;
   }, [employee, isArchived, statusLabel]);
 
   return (
-    <div className="dashboard-shell">
-      <div className="dashboard-card employee-profile-card">
-        <Toaster position="top-right" />
-        {loading ? (
-          <div className="profile-loading" aria-live="polite">
-            <div className="profile-loading__header" />
-            <div className="profile-loading__content" />
-            <div className="profile-loading__content" />
-          </div>
-        ) : null}
+    <div className="employee-profile-page">
+      <Toaster position="top-right" />
 
-        {!loading && notFound ? (
-          <div className="content-state">
-            <h2>Employee not found</h2>
-            <p>The employee you're looking for does not exist.</p>
-            <button type="button" className="primary-button" onClick={() => navigate('/employees')}>
-              Back to Employees
-            </button>
-          </div>
-        ) : null}
-
-        {!loading && error ? (
-          <div className="content-state content-state--error">
-            <h2>Unable to load employee information.</h2>
-            <button type="button" className="secondary-button" onClick={loadEmployee}>
-              Try Again
-            </button>
-          </div>
-        ) : null}
-
-        {!loading && !notFound && !error && employee ? (
-          <>
+      {loading ? (
+        <div className="profile-card" style={{ padding: '40px', textAlign: 'center' }}>
+          <p>Loading employee profile...</p>
+        </div>
+      ) : notFound ? (
+        <div className="profile-card" style={{ padding: '40px', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '18px', margin: '0 0 8px 0' }}>Employee not found</h2>
+          <p style={{ color: '#64748b', margin: '0 0 16px 0' }}>The employee record you are looking for does not exist.</p>
+          <button type="button" className="primary-button" onClick={() => navigate('/employees')}>
+            Back to Employees
+          </button>
+        </div>
+      ) : error ? (
+        <div className="profile-card" style={{ padding: '40px', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '18px', margin: '0 0 8px 0', color: '#dc2626' }}>Unable to load employee information</h2>
+          <button type="button" className="secondary-button" onClick={loadEmployee}>
+            Try Again
+          </button>
+        </div>
+      ) : employee ? (
+        <>
+          {/* Header Profile Card */}
+          <div className="profile-card">
             <div className="profile-header">
               <div className="profile-header__identity">
                 {profileImage ? (
@@ -331,12 +257,11 @@ const EmployeeProfile = () => {
                   <div className="profile-avatar profile-avatar--fallback">{getInitials(employee.fullName)}</div>
                 )}
                 <div>
-                  <p className="dashboard-eyebrow">PeopleHub</p>
                   <h1>{employee.fullName || 'Employee'}</h1>
-                  <p className="profile-role">{employee.role || 'Role not provided'}</p>
+                  <p className="profile-role">{employee.role || 'Role not specified'}</p>
                   <div className="profile-meta-row">
-                    <span className="profile-pill">{employee.employeeId || 'Not provided'}</span>
-                    <span className={`employee-status employee-status--${employmentStatus === 'active' ? 'active' : 'neutral'}`}>
+                    <span className="profile-pill">{employee.employeeId || 'No ID'}</span>
+                    <span className={`status-badge status-badge--${employmentStatus === 'active' ? 'active' : 'leave'}`}>
                       {statusLabel}
                     </span>
                   </div>
@@ -349,190 +274,187 @@ const EmployeeProfile = () => {
                   onClick={openArchiveModal}
                   disabled={isArchived || archiving}
                 >
-                  {isArchived ? 'Archived' : archiving ? 'Archiving...' : 'Archive Employee'}
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>archive</span>
+                  <span>{isArchived ? 'Archived' : archiving ? 'Archiving...' : 'Archive Employee'}</span>
                 </button>
-                <Link to={`/employees/${employee._id}/edit`} className="primary-button" style={{ textDecoration: 'none', display: 'inline-flex' }}>
-                  Edit Employee
+                <Link to={`/employees/${employee._id}/edit`} className="primary-button">
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
+                  <span>Edit Employee</span>
                 </Link>
               </div>
             </div>
+          </div>
 
-            <div className="profile-grid">
-              <section className="profile-section">
-                <div className="profile-section__heading">
-                  <h2>Personal Information</h2>
-                </div>
-                <div className="profile-info-list">
-                  {infoItems.map((row) => (
-                    <div className="profile-info-row" key={row.label}>
-                      <span>{row.label}</span>
-                      <strong>{row.value}</strong>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              <section className="profile-section">
-                <div className="profile-section__heading">
-                  <h2>Employment Information</h2>
-                </div>
-                <div className="profile-info-list">
-                  {employmentItems.map((row) => (
-                    <div className="profile-info-row" key={row.label}>
-                      <span>{row.label}</span>
-                      <strong>{row.value}</strong>
-                    </div>
-                  ))}
-                </div>
-              </section>
+          {/* Info Grids */}
+          <div className="profile-grid-two-col">
+            <div className="profile-section-card">
+              <div className="profile-section-card__heading">
+                <h2>Personal Details</h2>
+              </div>
+              <div className="info-list-stack">
+                {infoItems.map((row) => (
+                  <div className="info-row-item" key={row.label}>
+                    <span className="info-row-label">{row.label}</span>
+                    <span className="info-row-value">{row.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="profile-grid">
-              <section className="profile-section">
-                <div className="profile-section__heading">
-                  <h2>Projects</h2>
-                </div>
-                {employeeProjectsLoading ? (
-                  <div className="content-state">Loading projects...</div>
-                ) : employeeProjects.length === 0 ? (
-                  <div className="content-state">
-                    <p>No projects assigned.</p>
+            <div className="profile-section-card">
+              <div className="profile-section-card__heading">
+                <h2>Employment Details</h2>
+              </div>
+              <div className="info-list-stack">
+                {employmentItems.map((row) => (
+                  <div className="info-row-item" key={row.label}>
+                    <span className="info-row-label">{row.label}</span>
+                    <span className="info-row-value">{row.value}</span>
                   </div>
-                ) : (
-                  <div  className="project-grid">
-                    {employeeProjects.map((project) => (
-                      <div key={project._id} onClick={() => navigate(`/projects/${project._id}`)} className="project-card" style={{ cursor: 'pointer' , backgroundColor: '#f9f9f9', border: '1px solid #ddd', borderRadius: '8px', padding: '16px', transition: 'box-shadow 0.3s ease' }}>
-                        <div className="project-card__header">
-                          <div>
-                            <h2>{project.name}</h2>
-                            <p>{project.description || 'No description provided.'}</p>
-                          </div>
-                          <span className={`project-status project-status--${project.status}`}>{project.status}</span>
-                        </div>
-                        <div className="project-meta">
-                          <span>Start: {formatDate(project.startDate)}</span>
-                          <span>End: {formatDate(project.endDate)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            </div>
-
-            {/* Admin Feedback Section */}
-            <div className="profile-grid">
-              <section className="profile-section">
-                <div className="profile-section__heading">
-                  <h2>Admin Feedback</h2>
-                  <div style={{ marginLeft: 'auto' }}>
-                    <button type="button" className="primary-button" onClick={openAddFeedback}>
-                      + Add Feedback
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ marginTop: 12 }}>
-                  <FeedbackList key={refreshFeedbackKey} employeeId={employee._id} />
-                </div>
-              </section>
-            </div>
-
-            {showAddFeedback && employee ? (
-              <AddFeedbackModal employeeId={employee._id} onClose={closeAddFeedback} onAdded={() => {
-                onFeedbackAdded();
-              }} />
-            ) : null}
-
-            {/* Documents Section */}
-            <div className="profile-grid">
-              <section className="profile-section">
-                <div className="profile-section__heading">
-                  <h2>Documents</h2>
-                  <div style={{ marginLeft: 'auto' }}>
-                    <button type="button" className="primary-button" onClick={openUploadDocument}>
-                      + Upload Document
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ marginTop: 12 }}>
-                  <DocumentList key={refreshDocumentsKey} employeeId={employee._id} />
-                </div>
-              </section>
-            </div>
-
-            {showUploadDocument && employee ? (
-              <UploadDocumentModal employeeId={employee._id} onClose={closeUploadDocument} onUploaded={() => {
-                onDocumentUploaded();
-              }} />
-            ) : null}
-          </>
-        ) : null}
-
-        {showArchiveModal && employee ? (
-          <div className="archive-modal-backdrop" onClick={() => !archiving && setShowArchiveModal(false)}>
-            <div className="archive-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
-              <h2>Archive Employee?</h2>
-              <p className="archive-modal__copy">
-                Are you sure you want to archive
-                <br />
-                <strong>{employee.fullName || 'this employee'}?</strong>
-              </p>
-
-              <form className="archive-modal__form" onSubmit={handleArchiveSubmit}>
-                <label className="archive-modal__field">
-                  <span>Reason</span>
-                  <select value={archiveReason} onChange={(event) => setArchiveReason(event.target.value)}>
-                    <option value="Resigned">Resigned</option>
-                    <option value="Terminated">Terminated</option>
-                    <option value="Contract Ended">Contract Ended</option>
-                    <option value="Laid Off">Laid Off</option>
-                    <option value="Retired">Retired</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </label>
-
-                {archiveReason === 'Other' ? (
-                  <label className="archive-modal__field">
-                    <span>Custom Reason</span>
-                    <input
-                      type="text"
-                      value={customReason}
-                      onChange={(event) => setCustomReason(event.target.value)}
-                      placeholder="Enter a custom reason"
-                    />
-                  </label>
-                ) : null}
-
-                <label className="archive-modal__field">
-                  <span>Leaving Date</span>
-                  <input type="date" value={archiveDate} onChange={(event) => setArchiveDate(event.target.value)} required />
-                </label>
-
-                <label className="archive-modal__field">
-                  <span>Additional Details (optional)</span>
-                  <textarea
-                    rows="4"
-                    value={archiveDetails}
-                    onChange={(event) => setArchiveDetails(event.target.value)}
-                    placeholder="Add any notes about the departure"
-                  />
-                </label>
-
-                <div className="archive-modal__actions">
-                  <button type="button" className="secondary-button" onClick={() => setShowArchiveModal(false)} disabled={archiving}>
-                    Cancel
-                  </button>
-                  <button type="submit" className="danger-button" disabled={archiving}>
-                    {archiving ? 'Archiving...' : 'Archive Employee'}
-                  </button>
-                </div>
-              </form>
+                ))}
+              </div>
             </div>
           </div>
-        ) : null}
-      </div>
+
+          {/* Assigned Projects Section */}
+          <div className="profile-grid-full">
+            <div className="profile-section-card">
+              <div className="profile-section-card__heading">
+                <h2>Assigned Projects</h2>
+              </div>
+              {employeeProjectsLoading ? (
+                <p style={{ color: '#64748b' }}>Loading assigned projects...</p>
+              ) : employeeProjects.length === 0 ? (
+                <p style={{ color: '#64748b' }}>No projects currently assigned to this employee.</p>
+              ) : (
+                <div className="profile-projects-grid">
+                  {employeeProjects.map((project) => (
+                    <div 
+                      key={project._id} 
+                      className="profile-project-item"
+                      onClick={() => navigate(`/projects/${project._id}`)}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                        <h3 className="profile-project-title">{project.name}</h3>
+                        <span className="status-badge status-badge--in-progress">{project.status}</span>
+                      </div>
+                      <p className="profile-project-desc">{project.description || 'No description provided.'}</p>
+                      <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', gap: '12px' }}>
+                        <span>Start: {formatDate(project.startDate)}</span>
+                        <span>End: {formatDate(project.endDate)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Feedback Section */}
+          <div className="profile-grid-full">
+            <div className="profile-section-card">
+              <div className="profile-section-card__heading">
+                <h2>Admin Feedback</h2>
+                <button type="button" className="primary-button" onClick={openAddFeedback} style={{ padding: '6px 12px', fontSize: '13px' }}>
+                  + Add Feedback
+                </button>
+              </div>
+              <FeedbackList key={refreshFeedbackKey} employeeId={employee._id} />
+            </div>
+          </div>
+
+          {showAddFeedback && (
+            <AddFeedbackModal 
+              employeeId={employee._id} 
+              onClose={closeAddFeedback} 
+              onAdded={onFeedbackAdded} 
+            />
+          )}
+
+          {/* Documents Section */}
+          <div className="profile-grid-full">
+            <div className="profile-section-card">
+              <div className="profile-section-card__heading">
+                <h2>Documents &amp; Files</h2>
+                <button type="button" className="primary-button" onClick={openUploadDocument} style={{ padding: '6px 12px', fontSize: '13px' }}>
+                  + Upload Document
+                </button>
+              </div>
+              <DocumentList key={refreshDocumentsKey} employeeId={employee._id} />
+            </div>
+          </div>
+
+          {showUploadDocument && (
+            <UploadDocumentModal 
+              employeeId={employee._id} 
+              onClose={closeUploadDocument} 
+              onUploaded={onDocumentUploaded} 
+            />
+          )}
+        </>
+      ) : null}
+
+      {/* Archive Modal */}
+      {showArchiveModal && employee && (
+        <div className="archive-modal-backdrop" onClick={() => !archiving && setShowArchiveModal(false)}>
+          <div className="archive-modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <h2>Archive Employee</h2>
+            <p className="archive-modal__copy">
+              Are you sure you want to archive <strong>{employee.fullName}</strong>?
+            </p>
+
+            <form className="archive-modal__form" onSubmit={handleArchiveSubmit}>
+              <label className="archive-modal__field">
+                <span>Reason</span>
+                <select value={archiveReason} onChange={(e) => setArchiveReason(e.target.value)}>
+                  <option value="Resigned">Resigned</option>
+                  <option value="Terminated">Terminated</option>
+                  <option value="Contract Ended">Contract Ended</option>
+                  <option value="Laid Off">Laid Off</option>
+                  <option value="Retired">Retired</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              {archiveReason === 'Other' && (
+                <label className="archive-modal__field">
+                  <span>Custom Reason</span>
+                  <input
+                    type="text"
+                    value={customReason}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                    placeholder="Enter custom reason"
+                  />
+                </label>
+              )}
+
+              <label className="archive-modal__field">
+                <span>Leaving Date</span>
+                <input type="date" value={archiveDate} onChange={(e) => setArchiveDate(e.target.value)} required />
+              </label>
+
+              <label className="archive-modal__field">
+                <span>Additional Details (optional)</span>
+                <textarea
+                  rows="3"
+                  value={archiveDetails}
+                  onChange={(e) => setArchiveDetails(e.target.value)}
+                  placeholder="Add notes about departure..."
+                />
+              </label>
+
+              <div className="archive-modal__actions">
+                <button type="button" className="secondary-button" onClick={() => setShowArchiveModal(false)} disabled={archiving}>
+                  Cancel
+                </button>
+                <button type="submit" className="danger-button" disabled={archiving}>
+                  {archiving ? 'Archiving...' : 'Archive Employee'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
