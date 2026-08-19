@@ -15,6 +15,7 @@ import AdminProtected from './components/Admin.protected.jsx';
 import Admins from './pages/Admins.jsx';
 import AddAdmin from './pages/AddAdmin.jsx';
 import EditAdmin from './pages/EditAdmin.jsx';
+import EmployeesExample from './pages/employees_example.jsx';
 
 const AppRoutes = () => (
   <BrowserRouter>
@@ -121,6 +122,14 @@ const AppRoutes = () => (
         element={
           <AdminProtected>
             <ProjectProfile />
+          </AdminProtected>
+        }
+      />
+      <Route
+        path="/employees-example"
+        element={
+          <AdminProtected>
+            <EmployeesExample />
           </AdminProtected>
         }
       />
