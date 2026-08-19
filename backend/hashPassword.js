@@ -8,4 +8,4 @@ async function hashPassword() {
   console.log(hash);
 }
 
-hashPassword();
+module.exports = { hashPassword };
